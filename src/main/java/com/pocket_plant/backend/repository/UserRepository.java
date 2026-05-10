@@ -1,6 +1,6 @@
-package com.pocket_plant.pocket_plant.repository;
+package com.pocket_plant.backend.repository;
 
-import com.pocket_plant.pocket_plant.entity.User;
+import com.pocket_plant.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

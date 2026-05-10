@@ -1,4 +1,4 @@
-package com.pocket_plant.pocket_plant.entity;
+package com.pocket_plant.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

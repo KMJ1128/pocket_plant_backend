@@ -1,10 +1,10 @@
-package com.pocket_plant.pocket_plant.service;
+package com.pocket_plant.backend.service;
 
-import com.pocket_plant.pocket_plant.client.KakaoClient;
-import com.pocket_plant.pocket_plant.dto.MemberTokenResponse;
-import com.pocket_plant.pocket_plant.entity.User;
-import com.pocket_plant.pocket_plant.repository.UserRepository;
-import com.pocket_plant.pocket_plant.security.JwtProvider;
+import com.pocket_plant.backend.client.KakaoClient;
+import com.pocket_plant.backend.dto.MemberTokenResponse;
+import com.pocket_plant.backend.entity.User;
+import com.pocket_plant.backend.repository.UserRepository;
+import com.pocket_plant.backend.security.JwtProvider;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +28,7 @@ public class KakaoService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
 
-    @Value("${kakao.app.key}")
+    @Value("${kakao.rest-api-key}")
     private String kakaoAppKey;
 
     /**

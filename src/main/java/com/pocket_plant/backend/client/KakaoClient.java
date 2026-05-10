@@ -1,4 +1,4 @@
-package com.pocket_plant.pocket_plant.client;
+package com.pocket_plant.backend.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

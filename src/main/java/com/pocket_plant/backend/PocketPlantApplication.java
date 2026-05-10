@@ -1,4 +1,4 @@
-package com.pocket_plant.pocket_plant;
+package com.pocket_plant.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

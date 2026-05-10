@@ -1,4 +1,4 @@
-package com.pocket_plant.pocket_plant.dto;
+package com.pocket_plant.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.pocket_plant.pocket_plant.config;
+package com.pocket_plant.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

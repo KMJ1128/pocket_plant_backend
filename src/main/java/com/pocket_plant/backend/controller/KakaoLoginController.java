@@ -1,13 +1,9 @@
-package com.pocket_plant.pocket_plant.controller;
+package com.pocket_plant.backend.controller;
 
-import com.pocket_plant.pocket_plant.dto.KakaoTokenRequest;
-import com.pocket_plant.pocket_plant.dto.MemberTokenResponse;
-import com.pocket_plant.pocket_plant.dto.UserDTO;
-import com.pocket_plant.pocket_plant.entity.MsgEntity;
-import com.pocket_plant.pocket_plant.entity.User;
-import com.pocket_plant.pocket_plant.repository.UserRepository;
-import com.pocket_plant.pocket_plant.security.JwtProvider;
-import com.pocket_plant.pocket_plant.service.KakaoService;
+import com.pocket_plant.backend.dto.KakaoTokenRequest;
+import com.pocket_plant.backend.dto.MemberTokenResponse;
+import com.pocket_plant.backend.entity.MsgEntity;
+import com.pocket_plant.backend.service.KakaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

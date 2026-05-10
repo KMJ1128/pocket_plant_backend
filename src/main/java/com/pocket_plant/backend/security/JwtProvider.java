@@ -1,4 +1,4 @@
-package com.pocket_plant.pocket_plant.security;
+package com.pocket_plant.backend.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

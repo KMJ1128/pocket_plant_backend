@@ -1,6 +1,6 @@
-package com.pocket_plant.pocket_plant.dto;
+package com.pocket_plant.backend.dto;
 
-import com.pocket_plant.pocket_plant.entity.User;
+import com.pocket_plant.backend.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
