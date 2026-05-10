@@ -67,5 +67,33 @@ public class KakaoService {
                 .kakaoId(user.getKakaoId())
                 .build();
     }
+    
+    /**
+     * JWT 토큰 검증
+     */
+    public boolean validateToken(String token) {
+        return jwtProvider.validateToken(token);
+    }
+    
+    /**
+     * JWT 토큰에서 User ID 추출
+     */
+    public Long getUserIdFromJWT(String token) {
+        return jwtProvider.getUserIdFromJWT(token);
+    }
+    
+    /**
+     * User ID로 사용자 정보 조회
+     */
+    public Optional<MemberTokenResponse> getUserInfoById(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> MemberTokenResponse.builder()
+                        .serviceToken(null) // 조회 시에는 토큰 필요 없음
+                        .userId(Math.toIntExact(user.getId()))
+                        .nickname(user.getNickname())
+                        .email(user.getEmail())
+                        .profileImageUrl(user.getProfileImage())
+                        .kakaoId(user.getKakaoId())
+                        .build());
+    }
 }
-

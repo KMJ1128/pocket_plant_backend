@@ -2,11 +2,17 @@ package com.pocket_plant.pocket_plant.controller;
 
 import com.pocket_plant.pocket_plant.dto.KakaoTokenRequest;
 import com.pocket_plant.pocket_plant.dto.MemberTokenResponse;
+import com.pocket_plant.pocket_plant.dto.UserDTO;
 import com.pocket_plant.pocket_plant.entity.MsgEntity;
+import com.pocket_plant.pocket_plant.entity.User;
+import com.pocket_plant.pocket_plant.repository.UserRepository;
+import com.pocket_plant.pocket_plant.security.JwtProvider;
 import com.pocket_plant.pocket_plant.service.KakaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * 모바일 앱용 카카오 로그인 API
@@ -32,6 +38,46 @@ public class KakaoLoginController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(new MsgEntity("로그인 실패", e.getMessage()));
+        }
+    }
+
+    /**
+     * JWT 토큰으로 사용자 정보 조회 (기존 회원용)
+     */
+    @GetMapping("/user/info")
+    public ResponseEntity<MsgEntity> getUserInfo(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Authorization 헤더에서 토큰 추출
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.badRequest()
+                        .body(new MsgEntity("인증 실패", "Invalid authorization header"));
+            }
+
+            String token = authHeader.substring(7);
+
+            // JWT 토큰 검증
+            if (!kaKaoService.validateToken(token)) {
+                return ResponseEntity.badRequest()
+                        .body(new MsgEntity("인증 실패", "Invalid or expired token"));
+            }
+
+            // 토큰에서 User ID 추출
+            Long userId = kaKaoService.getUserIdFromJWT(token);
+
+            // 사용자 정보 조회
+            Optional<MemberTokenResponse> userOpt = kaKaoService.getUserInfoById(userId);
+
+            if (userOpt.isPresent()) {
+                MemberTokenResponse user = userOpt.get();
+                return ResponseEntity.ok(new MsgEntity("사용자 정보 조회 성공", user));
+            } else {
+                return ResponseEntity.notFound()
+                        .build();
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new MsgEntity("사용자 정보 조회 실패", e.getMessage()));
         }
     }
 }
