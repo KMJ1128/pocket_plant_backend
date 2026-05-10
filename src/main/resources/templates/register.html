@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <style>
+        /* 화면을 가운데로 모으고 깔끔하게 만드는 스타일 */
+        body { font-family: sans-serif; display: flex; justify-content: center; background-color: #f5f5f5; }
+        .container { width: 400px; background: white; padding: 40px; margin-top: 50px; border-radius: 8px; }
+        h2 { text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .btn-verify { width: auto; padding: 10px; background: white; border: 1px solid #2ecc71; color: #2ecc71; cursor: pointer; }
+        .btn-submit { width: 100%; padding: 15px; background: #2ecc71; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        .hint { font-size: 12px; color: #888; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>회원가입</h2>
+    <p>회원정보를 입력해주세요</p>
+
+    <!-- th:action: 가입 버튼 눌렀을 때 데이터를 보낼 주소 -->
+    <!-- th:object: 이 폼이 어떤 가방(DTO)을 사용하는지 지정 -->
+    <form th:action="@{/register}" th:object="${memberJoinDTO}" method="post">
+
+        <div class="form-group" style="display: flex; gap: 5px;">
+            <!-- th:field="*{email}": DTO의 email 필드와 연결! -->
+            <input type="email" th:field="*{email}" placeholder="아이디 (이메일)" required>
+            <button type="button" class="btn-verify">인증하기</button>
+        </div>
+
+        <div class="form-group" style="display: flex; gap: 5px;">
+            <input type="text" id="verificationCode" placeholder="인증번호">
+            <button type="button" id="btn-check-code" class="btn-verify">인증확인</button>
+        </div>
+
+        <div class="form-group">
+            <input type="password" th:field="*{password}" placeholder="비밀번호" required>
+            <p class="hint">8~15자리 숫자, 영문, 특수기호 사용</p>
+        </div>
+
+        <div class="form-group">
+            <input type="password" th:field="*{passwordConfirm}" placeholder="비밀번호 확인" required>
+        </div>
+
+        <div class="form-group">
+            <input type="text" th:field="*{name}" placeholder="이름" required>
+        </div>
+
+        <button type="submit" class="btn-submit">회원가입하기</button>
+    </form>
+</div>
+
+<script>
+    // '인증하기' 버튼을 찾습니다.
+    const verifyBtn = document.querySelector('.btn-verify');
+
+    verifyBtn.addEventListener('click', function() {
+        // 1. 입력한 이메일 주소를 가져옵니다.
+        const email = document.getElementById('email').value;
+
+        if (!email) {
+            alert("이메일을 먼저 입력해주세요!");
+            return;
+        }
+
+        // 2. 서버의 '인증번호 발송 주소'로 요청을 보냅니다.
+        fetch('/api/email/verify-request?email=' + email, {
+            method: 'POST'
+        })
+            .then(response => response.text()) // 서버가 보내준 글자(text)를 받습니다.
+            .then(data => {
+                alert(data); // "인증번호가 발송되었습니다"라는 메시지를 띄웁니다.
+            })
+            .catch(error => {
+                console.error('에러 발생:', error);
+                alert("메일 발송에 실패했습니다. SMTP 설정을 확인해주세요.");
+            });
+    });
+
+    // '인증확인' 버튼 클릭 이벤트
+    const checkCodeBtn = document.getElementById('btn-check-code');
+
+    checkCodeBtn.addEventListener('click', function() {
+        const email = document.getElementById('email').value;
+        const code = document.getElementById('verificationCode').value;
+
+        if (!code) {
+            alert("인증번호를 입력해주세요!");
+            return;
+        }
+
+        // 서버로 인증번호 대조 요청을 보냅니다.
+        fetch(`/api/email/verify-code?email=${email}&code=${code}`, {
+            method: 'POST'
+        })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                if (message === "인증에 성공했습니다!") {
+                    // 인증 성공 시 처리 (예: 입력창 비활성화, 버튼 색상 변경 등)
+                    document.getElementById('verificationCode').readOnly = true;
+                    checkCodeBtn.disabled = true;
+                    checkCodeBtn.innerText = "인증완료";
+                }
+            })
+            .catch(error => alert("확인 중 오류 발생: " + error));
+    });
+
+</script>
+</body>
+</html>
