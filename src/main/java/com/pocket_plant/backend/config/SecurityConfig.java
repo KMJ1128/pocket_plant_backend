@@ -29,10 +29,10 @@ public class SecurityConfig {
             // API 엔드포인트 권한 설정
             .authorizeHttpRequests(authz -> authz
                 // 로그인 관련 엔드포인트는 공개
+                .requestMatchers("/kakao/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/health").permitAll()
-                
                 // 나머지는 인증 필요
                 .anyRequest().authenticated()
             )
@@ -46,4 +46,8 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
+
+
+
 

@@ -17,18 +17,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    // 자체 회원가입용
+
     @Column(unique = true)
-    private String username;
+    private String nickname;
     
     private String password; // 암호화 필요
     
     @Column(unique = true)
     private String email;
-    
-    private String nickname;
-    
+
     private String profileImage;
     
     // 소셜 로그인용

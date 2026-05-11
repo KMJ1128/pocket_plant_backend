@@ -1,17 +1,26 @@
 package com.pocket_plant.backend.service;
 
-import com.pocket_plant.backend.client.KakaoClient;
+
+import com.pocket_plant.backend.config.JwtTokenProvider;
+
+import com.pocket_plant.backend.dto.KakaoDTO;
 import com.pocket_plant.backend.dto.MemberTokenResponse;
+
+import com.pocket_plant.backend.entity.SocialLogin;
 import com.pocket_plant.backend.entity.User;
+import com.pocket_plant.backend.repository.SocialLoginRepository;
 import com.pocket_plant.backend.repository.UserRepository;
-import com.pocket_plant.backend.security.JwtProvider;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
-import java.util.Map;
-import java.util.Optional;
+
 
 /**
  * 카카오 로그인 비즈니스 로직
@@ -24,76 +33,90 @@ import java.util.Optional;
 @Transactional
 public class KakaoService {
 
-    private final KakaoClient kakaoClient;
+    private static final Logger log = LoggerFactory.getLogger(KakaoService.class);
+
+
     private final UserRepository userRepository;
-    private final JwtProvider jwtProvider;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final SocialLoginRepository socialLoginRepository;
 
     @Value("${kakao.rest-api-key}")
-    private String kakaoAppKey;
+    private String kakaoRestApiKey;
 
-    /**
-     * 카카오 Access Token으로 로그인 처리
-     * @param kakaoAccessToken 모바일 앱에서 받은 카카오 Access Token
-     * @return 서비스 JWT 토큰과 사용자 정보
-     */
+
+
     public MemberTokenResponse loginWithToken(String kakaoAccessToken) throws Exception {
-        // 1️⃣ 카카오 API에서 검증 (카카오 ID만 필요)
-        Map<String, Object> kakaoUserInfo = kakaoClient.getUserInfo(kakaoAccessToken);
-        
-        // 2️⃣ 카카오 ID 추출 (이게 유일한 식별자)
-        String kakaoId = kakaoUserInfo.get("id").toString();
-        
-        // 3️⃣ DB에서 이 카카오 ID가 이미 있는지 확인
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseGet(() -> {
-                    // 없으면 새로 생성
-                    User newUser = User.builder()
-                            .kakaoId(kakaoId)
-                            .loginType(User.LoginType.KAKAO)
-                            .build();
-                    return userRepository.save(newUser);
-                });
-        
-        // 4️⃣ JWT 토큰 발급
-        String serviceToken = jwtProvider.generateToken(user.getId());
-        
-        // 5️⃣ 응답 생성
-        return MemberTokenResponse.builder()
-                .serviceToken(serviceToken)
-                .userId(Math.toIntExact(user.getId()))
-                .nickname(user.getNickname())
-                .email(user.getEmail())
-                .profileImageUrl(user.getProfileImage())
-                .kakaoId(user.getKakaoId())
-                .build();
+
+
+        KakaoDTO kakaoInfo = getUserInfoFromKakao(kakaoAccessToken);
+
+        log.info("--- 카카오 로그인 사용자 정보 ---");
+        log.info("카카오 로그인 사용자 정보: ID={}, 닉네임={}", kakaoInfo.getId(), kakaoInfo.getNickname());
+        log.info("-----------------------------");
+
+        String socialId = "kakao_" + kakaoInfo.getId();
+
+        SocialLogin socialLogin = socialLoginRepository
+                .findBySocialId(socialId)
+                .orElse(null);
+
+        User user;
+
+        if (socialLogin != null) {
+            user = socialLogin.getUser(); // 이미 존재하면 해당 User 가져오기
+        } else {
+            // ✅ [핵심 수정] 신규 회원 생성: nickname 필드를 Builder에서 제거하여 DB에 NULL로 저장되도록 합니다.
+            String baseNickname = kakaoInfo.getNickname();
+
+            user = User.builder()
+                    .nickname(baseNickname) // 💡 카카오 닉네임은 username에 저장
+                    .build();
+            user = userRepository.save(user);
+
+            // SocialLogin 기록 생성
+            socialLoginRepository.save(SocialLogin.builder()
+                    .user(user)
+                    .provider("kakao")
+                    .socialId(socialId)
+                    .accessToken(kakaoAccessToken)
+                    .build());
+        }
+
+        // 3. 우리 서비스 인증 토큰 발행
+        String serviceToken = jwtTokenProvider.createToken(user.getId());
+
+
+        // 4. 결과 반환
+        return new MemberTokenResponse(
+                serviceToken,
+                user.getId(),
+                user.getNickname(),
+                user.getEmail(),
+                user.getProfileImage(),
+                user.getKakaoId(),
+                user.getNaverId()
+
+        );
     }
-    
-    /**
-     * JWT 토큰 검증
-     */
-    public boolean validateToken(String token) {
-        return jwtProvider.validateToken(token);
+
+
+
+
+
+    private KakaoDTO getUserInfoFromKakao(String kakaoAccessToken) {
+        RestClient restClient = RestClient.create();
+
+        RestClient.RequestHeadersUriSpec<?> uriSpec = restClient.get();
+
+        RestClient.RequestHeadersSpec<?> headersSpec = uriSpec.uri("https://kapi.kakao.com/v2/user/me");
+
+        return headersSpec
+                .header("Authorization", "Bearer " + kakaoAccessToken)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, (request, response) -> {
+                    throw new RuntimeException("Kakao Error: " + response.getStatusCode());
+                })
+                .body(KakaoDTO.class);
     }
-    
-    /**
-     * JWT 토큰에서 User ID 추출
-     */
-    public Long getUserIdFromJWT(String token) {
-        return jwtProvider.getUserIdFromJWT(token);
-    }
-    
-    /**
-     * User ID로 사용자 정보 조회
-     */
-    public Optional<MemberTokenResponse> getUserInfoById(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> MemberTokenResponse.builder()
-                        .serviceToken(null) // 조회 시에는 토큰 필요 없음
-                        .userId(Math.toIntExact(user.getId()))
-                        .nickname(user.getNickname())
-                        .email(user.getEmail())
-                        .profileImageUrl(user.getProfileImage())
-                        .kakaoId(user.getKakaoId())
-                        .build());
-    }
+
 }

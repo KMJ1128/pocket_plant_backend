@@ -31,7 +31,6 @@ public class UserDTO {
     public static UserDTO fromEntity(User user) {
         return UserDTO.builder()
                 .id(user.getId())
-                .username(user.getUsername())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
