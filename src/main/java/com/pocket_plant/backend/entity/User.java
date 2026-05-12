@@ -27,7 +27,13 @@ public class User {
     private String email;
 
     private String profileImage;
-    
+
+
+    private String role; // 권한 (일반유저, 운영진)
+
+    private Boolean isEmailVerified = false; // 이메일 인증 여부
+
+
     // 소셜 로그인용
     @Column(unique = true)
     private String kakaoId;

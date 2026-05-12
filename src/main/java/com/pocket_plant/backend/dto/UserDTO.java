@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserDTO {
-    
+
     private Long id;
     private String username;
     private String email;
@@ -24,20 +24,22 @@ public class UserDTO {
     private String naverId;
     private String loginType;
     private String role;
-    
+
     /**
      * User 엔티티를 DTO로 변환
      */
     public static UserDTO fromEntity(User user) {
+        String loginTypeName = user.getLoginType() != null ? user.getLoginType().name() : null;
         return UserDTO.builder()
                 .id(user.getId())
+                .username(user.getNickname())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
                 .kakaoId(user.getKakaoId())
                 .naverId(user.getNaverId())
-                .loginType(user.getLoginType().name())
+                .loginType(loginTypeName)
+                .role(user.getRole())
                 .build();
     }
 }
-
