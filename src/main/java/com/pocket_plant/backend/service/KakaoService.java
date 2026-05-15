@@ -70,6 +70,9 @@ public class KakaoService {
 
             user = User.builder()
                     .nickname(baseNickname) // 💡 카카오 닉네임은 username에 저장
+                    .loginType(User.LoginType.KAKAO)
+                    .role("ROLE_USER")
+                    .kakaoId(String.valueOf(kakaoInfo.getId()))
                     .build();
             user = userRepository.save(user);
 

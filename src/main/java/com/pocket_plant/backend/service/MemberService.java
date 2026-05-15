@@ -2,7 +2,7 @@ package com.pocket_plant.backend.service;
 
 
 
-
+import com.pocket_plant.backend.service.EmailService;
 import com.pocket_plant.backend.config.JwtTokenProvider;
 import com.pocket_plant.backend.dto.MemberJoinRequest;
 import com.pocket_plant.backend.dto.MemberTokenResponse;
@@ -23,16 +23,24 @@ public class MemberService {
     private PasswordEncoder passwordEncoder;
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final EmailService emailService;
+
 
     public MemberService(UserRepository userRepository,
                          PasswordEncoder passwordEncoder,
-                         JwtTokenProvider jwtTokenProvider) {
+                         JwtTokenProvider jwtTokenProvider,
+                         EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.emailService = emailService;
     }
 
     public void save(MemberJoinRequest dto) {
+        if (!emailService.isEmailVerified(dto.getEmail())) {
+            throw new IllegalStateException("이메일 인증이 필요합니다.");
+        }
+
         userRepository.findByEmail(dto.getEmail()).ifPresent(u -> {
             throw new IllegalStateException("이미 가입된 이메일입니다.");
         });
@@ -45,8 +53,9 @@ public class MemberService {
         user.setNickname(dto.getNickname());
         user.setRole("ROLE_USER");
         user.setLoginType(User.LoginType.GENERAL);
-        user.setIsEmailVerified(false);
+        user.setIsEmailVerified(true);
         userRepository.save(user);
+        emailService.consumeVerifiedEmail(dto.getEmail());
     }
 
 

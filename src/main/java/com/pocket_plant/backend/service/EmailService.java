@@ -20,11 +20,13 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     private final Map<String, String> verificationStorage = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> verifiedEmailStorage = new ConcurrentHashMap<>();
 
     public void sendVerificationCode(String email) {
         String code = String.valueOf(new Random().nextInt(899999) + 100000);
 
         verificationStorage.put(email, code);
+        verifiedEmailStorage.remove(email);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -39,8 +41,17 @@ public class EmailService {
         String savedCode = verificationStorage.get(email);
         if (savedCode != null && savedCode.equals(inputCode)) {
             verificationStorage.remove(email);
+            verifiedEmailStorage.put(email, true);
             return true;
         }
         return false;
+    }
+
+    public boolean isEmailVerified(String email) {
+        return Boolean.TRUE.equals(verifiedEmailStorage.get(email));
+    }
+
+    public void consumeVerifiedEmail(String email) {
+        verifiedEmailStorage.remove(email);
     }
 }
