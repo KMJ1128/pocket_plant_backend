@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/kakao/**",
                                 "/api/email/**",
+                                "/api/ai-chat/test",
                                 "/login",
                                 "/register",
                                 "/error"
