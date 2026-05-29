@@ -72,6 +72,7 @@ public class EmailApiController {
         try {
             logger.info("로그인 시도: {}", request.getEmail());
             MemberTokenResponse body = memberService.login(request);
+
             return ResponseEntity.ok(new MsgEntity("로그인 성공", body));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(401).body(new MsgEntity(e.getMessage(), null));
