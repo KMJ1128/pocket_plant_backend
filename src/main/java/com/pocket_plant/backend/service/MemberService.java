@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
+import java.util.logging.Logger;
 
 
 @Service
@@ -26,6 +26,8 @@ public class MemberService {
     private final EmailService emailService;
 
 
+    Logger logger = Logger.getLogger(MemberService.class.getName());
+
     public MemberService(UserRepository userRepository,
                          PasswordEncoder passwordEncoder,
                          JwtTokenProvider jwtTokenProvider,
@@ -37,6 +39,8 @@ public class MemberService {
     }
 
     public void save(MemberJoinRequest dto) {
+
+
         if (!emailService.isEmailVerified(dto.getEmail())) {
             throw new IllegalStateException("이메일 인증이 필요합니다.");
         }

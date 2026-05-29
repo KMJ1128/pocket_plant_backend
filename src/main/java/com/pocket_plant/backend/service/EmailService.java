@@ -9,9 +9,14 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Service
 public class EmailService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Value("${spring.mail.username}")
     private String mailFrom;
@@ -39,6 +44,9 @@ public class EmailService {
 
     public boolean verifyCode(String email, String inputCode) {
         String savedCode = verificationStorage.get(email);
+
+        logger.info("인증번호 검증: email={}, inputCode={}, savedCode={}", email, inputCode, savedCode);
+
         if (savedCode != null && savedCode.equals(inputCode)) {
             verificationStorage.remove(email);
             verifiedEmailStorage.put(email, true);
