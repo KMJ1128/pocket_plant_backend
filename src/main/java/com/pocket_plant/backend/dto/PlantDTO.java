@@ -19,7 +19,7 @@ public class PlantDTO {
     private Integer age;      // 숫자로 처리
     private String personality;
     private String imageUri;  // 프론트의 imageUri 변수명과 맞춤
-    private boolean bookmarked;
+    private Boolean bookmarked;
 
 
     // Entity -> DTO 변환 (조회 시 사용)
@@ -32,7 +32,6 @@ public class PlantDTO {
                 .adoptDate(plant.getAdoptDate() != null ? plant.getAdoptDate().toString() : null)
                 .age(plant.getAge())
                 .personality(plant.getPersonality())
-                .imageUri(plant.getImageUrl())
                 .bookmarked(plant.isBookmarked())
                 .build();
     }
@@ -47,7 +46,6 @@ public class PlantDTO {
                 .adoptDate(this.adoptDate != null ? LocalDate.parse(this.adoptDate, DateTimeFormatter.ISO_DATE) : null)
                 .age(this.age)
                 .personality(this.personality)
-                .imageUrl(this.imageUri)
                 // bookmarked는 등록 시 기본 false로 설정됨
                 .build();
     }

@@ -54,7 +54,6 @@ public class PlantService {
         plant.setAdoptDate(requestDto.toEntity().getAdoptDate());
         plant.setAge(requestDto.getAge());
         plant.setPersonality(requestDto.getPersonality());
-        plant.setImageUrl(requestDto.getImageUri());
 
         // 영속성 컨텍스트에 의해 트랜잭션 종료 시 자동 update 쿼리 실행
         return PlantDTO.fromEntity(plant);

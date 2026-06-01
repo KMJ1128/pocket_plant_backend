@@ -1,5 +1,6 @@
 package com.pocket_plant.backend.controller;
 
+import com.pocket_plant.backend.service.PlantSpeciesService;
 import com.pocket_plant.backend.dto.PlantDTO;
 import com.pocket_plant.backend.entity.MsgEntity;
 import com.pocket_plant.backend.service.PlantService;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,9 +18,9 @@ import java.util.List;
 public class PlantController {
 
     private final PlantService plantService;
-
-    // [GET] /api/plants - 내 식물 목록 조회 (Main 화면)
-    @GetMapping
+    private final PlantSpeciesService plantSpeciesService;
+    // [GET] /api/plants/my - 내 식물 목록 조회 (Main 화면)
+    @GetMapping("/my") // "/my" 엔드포인트로 변경하여 내 식물 목록 조회를 명확히 표현)
     public ResponseEntity<List<PlantDTO>> getAllPlants(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         List<PlantDTO> plants = plantService.getMyPlants(userId);
@@ -26,15 +28,15 @@ public class PlantController {
     }
 
     // [POST] /api/plants - 식물 등록 (PlantRegister 화면 - 등록 모드)
-    @PostMapping
+    @PostMapping("/register") // "/register" 엔드포인트로 변경하여 식물 등록을 명확히 표현)
     public ResponseEntity<MsgEntity> registerPlant(Authentication authentication, @RequestBody PlantDTO plantDto) {
         Long userId = (Long) authentication.getPrincipal();
         PlantDTO createdPlant = plantService.registerPlant(userId, plantDto);
         return ResponseEntity.ok(new MsgEntity("식물 등록 성공", createdPlant));
     }
 
-    // [PUT] /api/plants/{id} - 식물 수정 (PlantRegister 화면 - 수정 모드)
-    @PutMapping("/{id}")
+    // [PUT] /api/plants/edit/{id} - 식물 수정 (PlantRegister 화면 - 수정 모드)
+    @PutMapping("/edit/{id}")
     public ResponseEntity<MsgEntity> updatePlant(
             Authentication authentication,
             @PathVariable("id") Long id,
@@ -44,8 +46,8 @@ public class PlantController {
         return ResponseEntity.ok(new MsgEntity("식물 수정 성공", updatedPlant));
     }
 
-    // [DELETE] /api/plants/{id} - 식물 삭제 (Main 화면 ActionSheet)
-    @DeleteMapping("/{id}")
+    // [DELETE] /api/plants/edit/{id} - 식물 삭제 (Main 화면 ActionSheet)
+    @DeleteMapping("/edit/{id}")
     public ResponseEntity<MsgEntity> deletePlant(Authentication authentication, @PathVariable("id") Long id) {
         Long userId = (Long) authentication.getPrincipal();
         plantService.deletePlant(userId, id);
@@ -59,5 +61,18 @@ public class PlantController {
         Long userId = (Long) authentication.getPrincipal();
         PlantDTO updatedPlant = plantService.toggleBookmark(userId, id);
         return ResponseEntity.ok(updatedPlant);
+    }
+
+
+
+    @PostMapping("/identify")
+    public ResponseEntity<?> identifyPlant(@RequestParam("image") MultipartFile image) {
+        try {
+            // 서비스 로직 호출
+            Object result = plantSpeciesService.identifyAndGetCareGuide(image);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("식물 인식 중 오류 발생: " + e.getMessage());
+        }
     }
 }

@@ -44,7 +44,9 @@ public class SecurityConfig {
                                 "/api/ai-chat/test",
                                 "/login",
                                 "/register",
-                                "/error"
+                                "/error",
+                                "/api/plants/**",
+                                "/api/plants/register"
                         ).permitAll()
 
                         .anyRequest().authenticated()
