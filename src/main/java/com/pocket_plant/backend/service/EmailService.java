@@ -26,20 +26,27 @@ public class EmailService {
 
     private final Map<String, String> verificationStorage = new ConcurrentHashMap<>();
     private final Map<String, Boolean> verifiedEmailStorage = new ConcurrentHashMap<>();
-
+    private final Logger log = LoggerFactory.getLogger(EmailService.class);
     public void sendVerificationCode(String email) {
-        String code = String.valueOf(new Random().nextInt(899999) + 100000);
+        try {
+            String code = String.valueOf(new Random().nextInt(899999) + 100000);
 
-        verificationStorage.put(email, code);
-        verifiedEmailStorage.remove(email);
+            verificationStorage.put(email, code);
+            verifiedEmailStorage.remove(email);
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setFrom(mailFrom);
-        message.setSubject("회원가입 인증번호입니다.");
-        message.setText("인증번호: " + code);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setFrom(mailFrom);
+            message.setSubject("회원가입 인증번호입니다.");
+            message.setText("인증번호: " + code);
 
-        mailSender.send(message);
+            mailSender.send(message);
+
+            logger.info("인증번호 생성: email={}, code={}", email, code);
+        } catch (Exception e) {
+            logger.error("이메일 발송 실패: email={}, error={}", email, e.getMessage());
+            throw e;
+        }
     }
 
     public boolean verifyCode(String email, String inputCode) {
