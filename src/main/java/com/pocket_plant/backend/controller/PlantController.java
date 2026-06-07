@@ -5,6 +5,7 @@ import com.pocket_plant.backend.dto.PlantDTO;
 import com.pocket_plant.backend.entity.MsgEntity;
 import com.pocket_plant.backend.service.PlantService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -63,16 +64,24 @@ public class PlantController {
         return ResponseEntity.ok(updatedPlant);
     }
 
-
-
-    @PostMapping("/identify")
-    public ResponseEntity<?> identifyPlant(@RequestParam("image") MultipartFile image) {
+    @PostMapping(value = "/identify", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> identifyPlantImage(@RequestParam("image") MultipartFile image) {
         try {
-            // 서비스 로직 호출
-            Object result = plantSpeciesService.identifyAndGetCareGuide(image);
+            // 빈 파일이 들어왔는지 체크
+            if (image.isEmpty()) {
+                return ResponseEntity.badRequest().body("이미지 파일이 없습니다.");
+            }
+
+            // 사진 분석 서비스 호출
+            Object result = plantSpeciesService.identifyPlantImage(image);
+
             return ResponseEntity.ok(result);
+
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("식물 인식 중 오류 발생: " + e.getMessage());
         }
     }
+
+
+
 }

@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
 
                         .requestMatchers(
+                                "/",
                                 "/kakao/**",
                                 "/api/email/**",
                                 "/api/ai-chat/test",
@@ -46,7 +47,8 @@ public class SecurityConfig {
                                 "/register",
                                 "/error",
                                 "/api/plants/**",
-                                "/api/plants/register"
+                                "/api/plants/register",
+                                "/api/plants/identify"
                         ).permitAll()
 
                         .anyRequest().authenticated()
