@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 "/kakao/**",
                                 "/api/email/**",
                                 "/api/ai-chat/test",
+                                "/api/sensor",
                                 "/api/sensor/**",
                                 "/login",
                                 "/register",
