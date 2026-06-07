@@ -39,7 +39,7 @@ public class Plant {
 
     private String personality;
 
-    @Column(columnDefinition = "TEXT") // 긴 URI 저장을 위해 TEXT 타입 매핑
+    @Column(name = "image_url", length = 500)
     private String imageUrl;
 
     @Column(name = "is_bookmarked", nullable = false)
