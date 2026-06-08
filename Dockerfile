@@ -1,5 +1,5 @@
 # 1. 빌드 단계
-FROM gradle:8.5-jdk21-jammy AS build
+FROM gradle:9.4-jdk21-jammy AS build
 
 USER root
 
@@ -16,7 +16,7 @@ COPY . .
 RUN cd pocket_plant_web && npm install
 
 # Gradle 빌드 실행
-RUN chmod +x gradlew && ./gradlew build -x test
+RUN gradle build -x test
 
 # 2. 실행 단계
 FROM eclipse-temurin:21-jdk-jammy
