@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
 
                         .requestMatchers(
-                                "/",
+                                "/", "/index.html", "/assets/**", "/*.js", "/*.css", "/*.svg",
                                 "/kakao/**",
                                 "/api/email/**",
                                 "/api/ai-chat/test",

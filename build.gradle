@@ -46,3 +46,27 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+
+
+
+def reactAppDir = "$projectDir/pocket_plant_web"
+
+task npmBuild(type: Exec) {
+    workingDir "$reactAppDir"
+    if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+        commandLine "npm.cmd", "run", "build"
+    } else {
+        commandLine "npm", "run", "build"
+    }
+}
+
+task copyReactBuildFiles(type: Copy) {
+    dependsOn "npmBuild"
+    from "$reactAppDir/dist"
+    into "$projectDir/src/main/resources/static"
+}
+
+processResources {
+    dependsOn "copyReactBuildFiles"
+}
