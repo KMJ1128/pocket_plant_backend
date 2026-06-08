@@ -1,22 +1,21 @@
-# 1. 빌드 단계 (Node.js와 Gradle이 모두 필요한 환경)
+# 1. 빌드 단계
 FROM gradle:8.5-jdk21-jammy AS build
 
-# Node.js 설치 (Ubuntu 기반 이미지이므로 apt 사용)
+# 루트 권한으로 Node.js와 npm 설치
 USER root
 RUN apt-get update && \
     apt-get install -y nodejs npm
 
-# 프로젝트 파일 복사
+# 프로젝트 소스 복사
 COPY . .
 
-# React 빌드 (pocket_plant_web 디렉토리로 이동하여 빌드)
-# build.gradle에서 이미 설정을 마쳤다면 아래 명령만으로도 충분합니다.
+# Gradle 빌드 실행 (build.gradle에 설정된 npmBuild가 여기서 실행됨)
 RUN chmod +x gradlew && ./gradlew build -x test
 
-# 2. 실행 단계 (경량화된 자바 런타임)
+# 2. 실행 단계
 FROM eclipse-temurin:21-jdk-jammy
 
-# 빌드 단계에서 생성된 jar 파일 복사
+# 빌드 결과물(jar) 복사
 COPY --from=build /home/gradle/build/libs/*.jar app.jar
 
 # 애플리케이션 실행
