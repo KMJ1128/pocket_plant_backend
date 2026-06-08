@@ -37,22 +37,25 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(authz -> authz
-
                         .requestMatchers(
-                                "/", "/index.html", "/assets/**", "/*.js", "/*.css", "/*.svg",
+                                "/", "/index.html", "/assets/**",
+                                "/*.js", "/*.css", "/*.svg", "/*.ico", "/*.png",
                                 "/kakao/**",
                                 "/api/email/**",
+                                "/api/auth/**",
                                 "/api/ai-chat/test",
                                 "/api/sensor",
                                 "/api/sensor/**",
-                                "/login",
-                                "/register",
-                                "/error",
                                 "/api/plants/**",
-                                "/api/plants/register",
-                                "/api/plants/identify"
+                                "/login",
+                                "/signup",
+                                "/forgot-password",
+                                "/reset-password",
+                                "/board",
+                                "/board/**",
+                                "/register",
+                                "/error"
                         ).permitAll()
-
                         .anyRequest().authenticated()
                 )
 
