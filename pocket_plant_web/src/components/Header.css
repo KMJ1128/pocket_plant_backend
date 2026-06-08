@@ -1,0 +1,116 @@
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f3f4f6;
+  z-index: 1000;
+}
+
+.header-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 로고 영역 (아이콘 + 텍스트) */
+.header-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1f2937;
+  letter-spacing: -0.02em;
+}
+
+.logo-emoji {
+  font-size: 24px;
+}
+
+/* 우측 메뉴 + 버튼 컨테이너 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 40px; /* 메뉴와 로그인 버튼 사이의 간격 */
+}
+
+/* 네비게이션 링크 */
+.header-nav {
+  display: flex;
+  gap: 32px; /* 홈, 게시판, 내 식물 사이의 간격 */
+}
+
+.header-nav a {
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* 활성화된 메뉴 (홈 - 그린 컬러) */
+.header-nav a.active {
+  color: #10b981;
+}
+
+/* 일반 메뉴 (게시판, 내 식물 - 그레이 컬러) */
+.header-nav a.inactive {
+  color: #4b5563;
+}
+
+.header-nav a:hover {
+  color: #10b981;
+}
+
+/* 로그인 버튼 (테두리가 있는 흰색 버튼) */
+.btn-login {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #9ca3af; /* 얇은 회색 테두리 */
+  padding: 8px 20px;
+  border-radius: 8px; /* 둥근 사각형 조절 */
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-login:hover {
+  background-color: #f9fafb;
+  border-color: #6b7280;
+}
+
+/* 화면 너비가 768px 이하(태블릿, 모바일)일 때 적용 */
+@media (max-width: 768px) {
+  .header-inner {
+    padding: 0 16px;
+  }
+  .header-logo-wrap {
+    font-size: 18px; /* 로고 글자 살짝 축소 */
+  }
+  .header-right {
+    gap: 16px; /* 우측 영역 간격 좁히기 */
+  }
+  .header-nav {
+    gap: 12px; /* 메뉴끼리 간격 좁히기 */
+  }
+  .header-nav a {
+    font-size: 13px;
+  }
+  .btn-login {
+    padding: 6px 12px; /* 로그인 버튼 크기 축소 */
+    font-size: 12px;
+  }
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}

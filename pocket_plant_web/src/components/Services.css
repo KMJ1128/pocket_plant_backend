@@ -1,0 +1,152 @@
+/* 서비스 전체 섹션 규격 */
+.services-section {
+  padding: 100px 24px;
+  background-color: #ffffff;
+}
+
+.services-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 상단 타이틀 영역 스타일링 */
+.services-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+.services-badge {
+  background-color: #52d69b; /* 시안 특유의 밝은 연그린 */
+  color: #000000;
+  font-size: 36px;
+  font-weight: 800;
+  padding: 6px 20px;
+  border-radius: 8px;
+}
+
+.services-sub-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #111827;
+  margin-top: 4px;
+}
+
+/* 3열 종대 배치 반응형 그리드 */
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .services-grid {
+    grid-template-columns: repeat(3, 1fr); /* 가로 3개씩 자동 배치 */
+  }
+}
+
+/* 개별 화이트 카드 객체 */
+.service-card {
+  background-color: #ffffff;
+  border-radius: 36px; /* 시안의 둥글둥글한 모서리 반경 */
+  padding: 36px 32px; /* 내부 여백 최적화 */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  /* 힙한 규격의 입체 테두리선 */
+  border: 3px solid #000000;
+  box-shadow: 6px 6px 0px #000000;
+}
+
+/* 🛠️ 핵심 변경: 아이콘과 타이틀을 가로로 배치하는 상단 영역 */
+.card-top-layout {
+  display: flex;
+  align-items: center; /* 아이콘과 텍스트의 세로 중앙 정렬 */
+  gap: 16px; /* 아이콘 박스와 텍스트 사이의 간격 */
+  width: 100%;
+  position: relative;
+}
+
+/* 둥글려진 형태의 연그린 이모지 배경 박스 */
+.clover-icon-box {
+  width: 72px;
+  height: 72px;
+  background-color: #edfbf4;
+  border: 1px solid #c2ebd5;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* 카드 너비가 줄어도 찌그러지지 않게 방지 */
+}
+
+.service-emoji {
+  font-size: 32px;
+}
+
+/* 🛠️ 주요기능 + 제목 텍스트 정렬 그룹 */
+.card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* 주요 기능 글자와 밑의 제목 사이 간격 촘촘하게 */
+}
+
+.sub-tag {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: bold;
+}
+
+.main-feature-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #000000;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* 🛠️ 우측 상단 화살표 버튼 위치 고정 */
+.card-arrow-btn {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  background-color: #111827;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.arrow-icon {
+  color: #52d69b;
+  font-size: 12px;
+  transform: rotate(-45deg);
+  font-weight: bold;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* 시안의 얇은 내부 수평선 */
+.card-divider {
+  border: 0;
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 24px 0 20px 0; /* 수평선 위아래 시원한 마진 배치 */
+  width: 100%;
+}
+
+/* 하단 세부 디스크립션 설명문 */
+.card-description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0;
+  word-break: keep-all; /* 한글 단어 단위 줄바꿈 정렬 */
+}

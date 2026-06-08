@@ -1,0 +1,280 @@
+/* 서비스 전체 섹션 규격 */
+.diff-section {
+  padding: 80px 24px 100px 24px;
+  background-color: #ffffff;
+}
+
+.diff-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 상단 타이틀 구역 */
+.diff-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.diff-badge {
+  background-color: #52d69b; 
+  color: #000000;
+  font-size: 36px;
+  font-weight: 800;
+  padding: 6px 20px;
+  border-radius: 8px;
+}
+
+.diff-sub-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #111827;
+  margin-top: 4px;
+}
+
+/* 포켓플랜트 시그니처 대형 블랙 박스 */
+.pocket-main-card {
+  background-color: #000000;
+  border-radius: 40px;
+  padding-top: 10px;
+  padding-bottom: 40px;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin-bottom: 48px;
+  border: 4px solid #000000;
+}
+
+.pocket-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.pocket-brand-name {
+  color: #ffffff;
+  font-size: 36px;
+  font-weight: 900;
+}
+
+.our-service-tag {
+  background-color: #52d69b;
+  color: #000000;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 6px 16px;
+  border-radius: 8px;
+}
+
+.pocket-brand-summary {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 28px;
+}
+
+.pocket-tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.p-tag {
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid #ffffff;
+}
+
+/* 🛠️ 다시 한 줄에 2개씩(2열) 배치로 롤백 */
+.brands-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px; /* 카드 사이 간격 */
+}
+
+@media (min-width: 768px) {
+  .brands-grid {
+    grid-template-columns: repeat(2, 1fr); /* 👈 다시 한 줄에 2개씩 나오게 복구 */
+  }
+}
+
+/* 🛠️ 카드가 뚱뚱해지지 않고 가로로 길쭉하게 늘씬해지도록 대수술 */
+.brand-card {
+  border-radius: 40px; 
+  padding: 24px 40px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  min-height: 180px; 
+  height: 220px;     
+  overflow: hidden;
+  gap: 20px;
+  
+  /* 🛠️ 시안의 묵직한 입체 테두리를 만드는 핵심 속성 */
+  border: 3px solid #000000; /* 선 두께를 선명하게 3px로 고정 */
+  box-shadow: 6px 6px 0px #000000; /* 👈 오른쪽 아래에 흐림 효과 없는 6px짜리 검은색 면을 배치 */
+}
+
+.brand-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 내부 글씨들을 세로 중앙 정렬 */
+  height: 100%;
+}
+
+.brand-card-name {
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  width: max-content !important;
+  border-radius: 12px; 
+}
+
+.brand-tag-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px; /* 줄 간격 좁히기 */
+  margin-bottom: 8px;
+}
+
+.b-feature-tag {
+  font-size: 13px !important; 
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  line-height: 1.3;
+}
+
+.brand-weakness {
+  font-size: 13px !important; 
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 4px;
+}
+
+/* 1. 우측 이미지 공간 자체를 카드 높이(180px)에 맞춰 꽉 채웁니다. */
+.brand-graphic-box {
+  width: 200px;        /* 👈 기존 160px에서 200px로 가로폭 확장 */
+  height: 180px;       /* 👈 기존 140px에서 180px로 세로폭 확장 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* 3. 실제 이미지 제한을 풀어서 카드 천장 끝까지 키웁니다 */
+.brand-artwork-img {
+  width: 100% !important;
+  height: 100% !important; 
+  max-height: 180px !important; /* 👈 기존 140px에서 180px로 상한선 대폭 증폭! */
+  object-fit: contain; 
+}
+
+/* 🎨 개별 테마 스타일 (2번 사진 색상 유지) */
+
+/* 테마 1: Parrot Flower Power */
+.brand-white {
+  background-color: #f3f4f6; 
+  color: #111827;
+}
+.brand-white .brand-card-name { 
+  background-color: #52d69b; 
+  color: #111827; 
+  padding: 2px 10px;
+}
+.brand-white .b-feature-tag { background-color: #52d69b; color: #111827; }
+.brand-white .brand-weakness { color: #4b5563; }
+
+/* 테마 2: Planta */
+.brand-green {
+  background-color: #52d69b; 
+  color: #111827;
+}
+.brand-green .brand-card-name { 
+  background-color: #ffffff; 
+  color: #111827; 
+  padding: 2px 10px;
+}
+.brand-green .b-feature-tag { background-color: #ffffff; color: #111827; }
+.brand-green .brand-weakness { color: #064e3b; }
+
+/* 테마 3: Plantify */
+.brand-black {
+  background-color: #000000;
+  color: #ffffff;
+}
+.brand-black .brand-card-name { 
+  background-color: #52d69b; 
+  color: #000000 !important; 
+  padding: 2px 10px;
+}
+.brand-black .b-feature-tag { background-color: #52d69b; color: #000000; }
+.brand-black .brand-weakness { color: #9ca3af; }
+
+/* 테마 4: Greg */
+.brand-light-gray {
+  background-color: #f3f4f6; 
+  color: #000000;
+}
+.brand-light-gray .brand-card-name { 
+  background-color: #000000; 
+  color: #ffffff !important; 
+  padding: 2px 10px;
+}
+.brand-light-gray .b-feature-tag { background-color: #111827; color: #ffffff; }
+.brand-light-gray .brand-weakness { color: #4b5563; }
+
+
+/* 📱 모바일 디바이스 완벽 대응 반응형 미디어 쿼리 */
+@media (max-width: 768px) {
+  .diff-section {
+    padding: 40px 16px;
+  }
+
+  .diff-header {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .brand-card {
+    flex-direction: column-reverse; 
+    align-items: flex-start;
+    padding: 24px;
+    border-radius: 24px;
+    gap: 16px;
+    height: auto; /* 모바일에서는 내용에 맞게 풀림 */
+    min-height: none;
+  }
+
+  .brand-card-name {
+    font-size: 24px !important;
+    margin-top: 8px;
+  }
+  
+  .b-feature-tag {
+    font-size: 13px !important;
+  }
+
+  .brand-graphic-box {
+    width: 100%;
+    height: auto;
+    justify-content: center;
+  }
+
+  .brand-artwork-img {
+    max-height: 100px;
+  }
+}

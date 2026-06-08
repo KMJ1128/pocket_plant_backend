@@ -1,0 +1,127 @@
+.write-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding: 100px 24px;
+}
+
+.write-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 탭 */
+.board-tabs {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.board-tab {
+  font-size: 15px;
+  font-weight: 700;
+  color: #9ca3af;
+  cursor: pointer;
+  position: relative;
+}
+
+.board-tab.active {
+  color: #52d69b;
+}
+
+.board-tab + .board-tab::before {
+  content: '|';
+  position: absolute;
+  left: -10px;
+  color: #e5e7eb;
+}
+
+/* 폼 테이블 */
+.write-table {
+  border-top: 2px solid #111827;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.write-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.write-label {
+  width: 100px;
+  min-width: 100px;
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  background-color: #f9fafb;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e5e7eb;
+}
+
+.write-input {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #111827;
+}
+
+.write-textarea {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #111827;
+  height: 160px;
+  resize: none;
+}
+
+.write-file {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-btn {
+  background-color: #111827;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.file-name {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* 저장 버튼 */
+.write-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.save-btn {
+  background-color: #52d69b;
+  color: #000000;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background-color: #3ec988;
+}

@@ -1,0 +1,123 @@
+.hero-section {
+  padding: 100px 20px;
+  background-color: #ffffff;
+}
+
+.hero-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row; /* 기본은 가로 배치 */
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+/* 📱 모바일 반응형 추가 */
+@media (max-width: 768px) {
+  .hero-container {
+    flex-direction: column; /* 모바일에서는 위아래 세로 배치로 변경! */
+    text-align: center; /* 글자 가운데 정렬 */
+    padding-top: 40px;
+  }
+
+  .hero-main-title {
+    font-size: 36px; /* 모바일 화면에 맞게 타이틀 크기 축소 */
+  }
+
+  .hero-sub-desc {
+    font-size: 14px;
+    br { display: none; } /* 모바일에서 애매하게 줄바꿈되는 현상 방지 */
+  }
+
+  .hero-image-area {
+    width: 300px;  /* 선인장 이미지 영역 모바일 사이즈로 축소 */
+    height: 300px;
+  }
+
+  .dashed-circle {
+    width: 280px;
+    height: 280px;
+  }
+
+  .hero-image-wrapper {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+/* 좌측 텍스트 스타일 */
+.hero-text {
+  flex: 1;
+}
+
+.hero-main-title {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+
+.hero-main-title .highlight {
+  color: #10b981; /* 시안의 시그니처 에메랄드 그린 */
+}
+
+.hero-sub-desc {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #4b5563;
+  margin-bottom: 40px;
+}
+
+.btn-start {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-start:hover {
+  background-color: #1f2937;
+}
+
+/* 우측 그래픽 영역 (실제 이미지 레이아웃 반영) */
+.hero-image-area {
+  position: relative;
+  width: 450px;
+  height: 450px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0; /* 화면이 줄어들 때 이미지가 구겨지지 않도록 방지 */
+}
+
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 이미지를 감싸는 정렬 박스 */
+.hero-image-wrapper {
+  position: relative;
+  z-index: 2; /* 점선보다 위로 띄움 */
+  width: 350px;
+  height: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 실제 hero.png 이미지 최적화 */
+.hero-main-img {
+  width: 130%;
+  height: 130%;
+  object-fit: contain; /* 비율 유지하며 꽉 차게 */
+}

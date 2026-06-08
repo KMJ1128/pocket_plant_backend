@@ -1,0 +1,124 @@
+.signup-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding-top: 60px;
+}
+
+.signup-box {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  height: fit-content;
+}
+
+.signup-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #111827;
+  margin: 0 0 10px 0;
+}
+
+.signup-desc {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+}
+
+/* 이메일 + 인증하기 버튼 한 줄 */
+.signup-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.signup-input-row .signup-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.auth-btn {
+  background-color: #ffffff;
+  border: 1px solid #52d69b;
+  color: #52d69b;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.auth-btn:hover {
+  background-color: #f0fdf4;
+}
+
+.signup-input {
+  padding: 13px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.signup-input.full {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.signup-input:focus {
+  border-color: #52d69b;
+}
+
+.signup-input.input-error {
+  border-color: #ef4444;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: -6px 0 12px 2px;
+}
+
+.input-error-msg {
+  font-size: 12px;
+  color: #ef4444;
+  margin: -6px 0 12px 2px;
+}
+
+.signup-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #52d69b;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 800;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.signup-submit-btn:hover {
+  background-color: #3ec988;
+}
+
+.signup-input.input-success {
+  border-color: #52d69b;
+}
+
+.input-success-msg {
+  font-size: 12px;
+  color: #52d69b;
+  margin: -6px 0 12px 2px;
+}
+
+.auth-btn.auth-sent {
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
