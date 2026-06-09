@@ -28,6 +28,10 @@ public class Plant {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
+    private Long character_id;
+
+
     @Column(nullable = false)
     private String name;
 

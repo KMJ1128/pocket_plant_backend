@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 @Builder
 public class PlantDTO {
     private Long id;
+    private Long character_id;
     private String name;
     private String species;
     private String adoptDate; // 프론트와 YYYY-MM-DD 문자열로 통신
@@ -26,6 +27,7 @@ public class PlantDTO {
     public static PlantDTO fromEntity(Plant plant) {
         return PlantDTO.builder()
                 .id(plant.getId())
+                .character_id(plant.getCharacter_id())
                 .name(plant.getName())
                 .species(plant.getSpecies())
                 // LocalDate를 YYYY-MM-DD 문자열로 변환
@@ -40,6 +42,7 @@ public class PlantDTO {
     // User 객체는 Service 계층에서 주입
     public Plant toEntity() {
         return Plant.builder()
+                .character_id(this.character_id)
                 .name(this.name)
                 .species(this.species)
                 // YYYY-MM-DD 문자열을 LocalDate로 변환
