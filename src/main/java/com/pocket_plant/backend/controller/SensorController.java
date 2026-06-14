@@ -25,4 +25,5 @@ public class SensorController {
         sensorDataRepository.save(sensorData);
         return "데이터 저장 성공";
     }
+    // ㅎㅇ
 }
