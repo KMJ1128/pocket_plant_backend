@@ -54,6 +54,7 @@ public class SecurityConfig {
                                 "/board",
                                 "/board/**",
                                 "/register",
+                                "/api/ai-chat/**",
                                 "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
