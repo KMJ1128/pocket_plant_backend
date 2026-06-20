@@ -15,11 +15,10 @@ public class SensorData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private float temperature;
-    private float humidity;
-    private float light;
-    private float soil;
+    private Float temperature;
+    private Float humidity;
+    private Float light;
+    private Float soil;
     private LocalDateTime regDate;
 
     @PrePersist

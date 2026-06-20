@@ -6,35 +6,33 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*") // 💡 중요: 리액트 네이티브 앱이 서버에 접속할 수 있도록 허용해 줍니다.
+@CrossOrigin(origins = "*")
 public class SensorController {
 
-    // 최신 데이터를 메모리에 임시로 담아둘 보관함(우체통)입니다.
-    private final Map<String, Object> latestData = new ConcurrentHashMap<>();
+    // 💡 [변경] 식별자가 Long에서 String(MAC 주소)으로 바뀜
+    // 사물함 번호표(MAC 주소) -> 사물함 안의 내용물(온습도 데이터)
+    private final Map<String, Map<String, Object>> latestDataMap = new ConcurrentHashMap<>();
 
-    // 1. ESP32 보드가 데이터를 보내는 곳 (POST)
+    // 1. ESP32 보드가 데이터를 보내는 곳
     @PostMapping("/sensor")
     public String receiveSensorData(@RequestBody Map<String, Object> data) {
-        System.out.println("====== ESP32로부터 데이터 도착 ======");
-        System.out.println(data);
-        // 보관함에 최신 데이터로 업데이트합니다.
-        latestData.putAll(data);
+        // ESP32가 보낸 JSON에서 MAC 주소를 추출
+        String macAddress = (String) data.get("macAddress");
 
-        System.out.println(latestData.get("light"));
+        System.out.println("====== MAC [" + macAddress + "] 기기로부터 데이터 도착 ======");
+
+        // 해당 MAC 주소 사물함 칸에 데이터를 덮어씀
+        latestDataMap.put(macAddress, data);
 
         return "데이터 저장 완료!";
     }
 
-    // 2. ⭐️ 리액트 네이티브 앱이 최신 데이터를 가져가는 곳 (GET)
-    @GetMapping("/sensor/latest")
-    public Map<String, Object> getLatestData() {
-        // 앱이 요청하면 보관하고 있던 최신 데이터를 JSON 형태로 돌려줍니다.
-//        double temperature = (double) latestData.get("temperature"); // 온도
-//        double humidity = (double) latestData.get("humidity"); //습도
-//        int light = (int) latestData.get("light"); // 조도
-//        int moisture = (int) latestData.get("moisture"); // 토양수분
-        System.out.println("센서데이터 요청");
-        return latestData;
+    // 2. 리액트 네이티브 앱이 "특정 기기"의 데이터를 가져가는 곳
+    // 주소 예시: /api/sensor/latest/10:00:3B:D1:3F:C8 (이런 식으로 앱에서 요청)
+    @GetMapping("/sensor/latest/{macAddress}")
+    public Map<String, Object> getLatestData(@PathVariable String macAddress) {
+        System.out.println("MAC [" + macAddress + "] 센서데이터 요청");
+
+        return latestDataMap.getOrDefault(macAddress, Map.of("message", "아직 수신된 데이터가 없습니다."));
     }
 }
-// dd
