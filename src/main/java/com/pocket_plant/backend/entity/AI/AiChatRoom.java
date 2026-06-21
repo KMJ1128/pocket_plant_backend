@@ -1,5 +1,6 @@
 package com.pocket_plant.backend.entity.AI;
 
+import com.pocket_plant.backend.entity.Plant;
 import com.pocket_plant.backend.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,18 +26,29 @@ public class AiChatRoom {
     @JoinColumn(name="user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "plant_id",
+            nullable = false
+    )
+    private Plant plant;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        createdAt =
+                LocalDateTime.now();
+
+        updatedAt =
+                LocalDateTime.now();
     }
 
     @PreUpdate
     public void preUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt =
+                LocalDateTime.now();
     }
 }
