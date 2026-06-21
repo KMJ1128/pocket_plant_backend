@@ -43,6 +43,9 @@ public class Plant {
 
     private String personality;
 
+    @Column(name = "mac_address")
+    private String macAddress; // 💡 기기 맥 주소 추가
+
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 

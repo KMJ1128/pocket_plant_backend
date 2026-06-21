@@ -55,6 +55,10 @@ public class PlantService {
         plant.setAge(requestDto.getAge());
         plant.setPersonality(requestDto.getPersonality());
 
+        if(requestDto.getMacAddress() != null) {
+            plant.setMacAddress(requestDto.getMacAddress());
+        }
+
         // 영속성 컨텍스트에 의해 트랜잭션 종료 시 자동 update 쿼리 실행
         return PlantDTO.fromEntity(plant);
     }

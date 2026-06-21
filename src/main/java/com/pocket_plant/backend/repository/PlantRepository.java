@@ -15,4 +15,6 @@ public interface PlantRepository extends JpaRepository<Plant, Long> {
 
     // 식물 ID와 유저 ID로 특정 식물 조회 (보안 및 권한 확인용)
     Optional<Plant> findByIdAndUserId(Long plantId, Long userId);
+
+    Optional<Plant> findFirstByMacAddressOrderByIdDesc(String macAddress);
 }
