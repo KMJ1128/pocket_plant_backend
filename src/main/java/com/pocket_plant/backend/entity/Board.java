@@ -2,45 +2,71 @@ package com.pocket_plant.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Table(name = "boards")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Board {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 게시글 PK (식별자)
+    private Long id;
 
-    @Column(nullable = false)
-    private String title; // 게시글 제목
+    @Column(nullable = false, length = 200)
+    private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String content; // 게시글 내용
+    private String content;
 
-    private String category; // 게시글 카테고리
+    @Column(nullable = false, length = 50)
+    private String category;
+
+    @Column(name = "user_id", nullable = false)
+    private String userId;
 
     @Column(nullable = false)
-    private String userId; // 작성자 ID
+    private String writer;
 
-    private String writer; // 작성자 닉네임
-
-    //  조회수 필드 (기본값 0 설정)
     @Builder.Default
-    @Column(columnDefinition = "integer default 0")
+    @Column(nullable = false)
     private Integer views = 0;
 
-    private LocalDateTime createdAt; // 작성 일시
+    @ElementCollection
+    @CollectionTable(
+            name = "board_images",
+            joinColumns = @JoinColumn(name = "board_id")
+    )
+    @OrderColumn(name = "sort_order")
+    @Column(name = "image_url", length = 500)
+    @Builder.Default
+    private List<String> imageUris = new ArrayList<>();
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now(); // DB 저장 직전 시간 자동 설정
-        if (this.views == null) {
-            this.views = 0; // views가 null인 경우 0으로 안전하게 초기화
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+
+        if (views == null) {
+            views = 0;
         }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

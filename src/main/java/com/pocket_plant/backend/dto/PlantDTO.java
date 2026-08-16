@@ -1,58 +1,83 @@
 package com.pocket_plant.backend.dto;
 
 import com.pocket_plant.backend.entity.Plant;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PlantDTO {
+
     private Long id;
     private Long character_id;
     private String name;
     private String species;
-    private String adoptDate; // 프론트와 YYYY-MM-DD 문자열로 통신
-    private Integer age;      // 숫자로 처리
+    private String adoptDate;
+    private Integer age;
     private String personality;
-    private String imageUri;  // 프론트의 imageUri 변수명과 맞춤
+    private String imageUri;
+
     private String macAddress;
     private Boolean bookmarked;
 
-
-    // Entity -> DTO 변환 (조회 시 사용)
     public static PlantDTO fromEntity(Plant plant) {
         return PlantDTO.builder()
                 .id(plant.getId())
                 .character_id(plant.getCharacter_id())
                 .name(plant.getName())
                 .species(plant.getSpecies())
-                // LocalDate를 YYYY-MM-DD 문자열로 변환
-                .adoptDate(plant.getAdoptDate() != null ? plant.getAdoptDate().toString() : null)
+                .adoptDate(
+                        plant.getAdoptDate() == null
+                                ? null
+                                : plant.getAdoptDate().toString()
+                )
                 .age(plant.getAge())
                 .personality(plant.getPersonality())
+                .imageUri(plant.getImageUrl())
                 .macAddress(plant.getMacAddress())
                 .bookmarked(plant.isBookmarked())
                 .build();
     }
 
-    // DTO -> Entity 변환 (등록/수정 시 사용)
-    // User 객체는 Service 계층에서 주입
     public Plant toEntity() {
         return Plant.builder()
-                .character_id(this.character_id)
-                .name(this.name)
-                .species(this.species)
-                // YYYY-MM-DD 문자열을 LocalDate로 변환
-                .adoptDate(this.adoptDate != null ? LocalDate.parse(this.adoptDate, DateTimeFormatter.ISO_DATE) : null)
-                .age(this.age)
-                .personality(this.personality)
-                .macAddress(this.macAddress)
-                // bookmarked는 등록 시 기본 false로 설정됨
+                .character_id(character_id)
+                .name(name)
+                .species(species)
+                .adoptDate(parseAdoptDate())
+                .age(age)
+                .personality(personality)
+                .imageUrl(emptyToNull(imageUri))
+                .macAddress(emptyToNull(macAddress))
+                .bookmarked(false)
                 .build();
+    }
+
+    public LocalDate parseAdoptDate() {
+        if (adoptDate == null || adoptDate.isBlank()) {
+            return null;
+        }
+
+        return LocalDate.parse(
+                adoptDate,
+                DateTimeFormatter.ISO_LOCAL_DATE
+        );
+    }
+
+    private String emptyToNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
     }
 }
