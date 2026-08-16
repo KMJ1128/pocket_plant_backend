@@ -32,7 +32,6 @@ public class EmailApiController {
     @PostMapping("/verify-request")
     public String sendCode(@RequestParam("email") String email) {
         try {
-
             logger.info("이메일 인증 요청: {}", email);
             emailService.sendVerificationCode(email);
             return "인증번호가 발송되었습니다. 메일함을 확인해주세요!";

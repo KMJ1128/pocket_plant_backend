@@ -45,22 +45,22 @@ tasks.named('test') {
 
 // --- React 연동 설정 (도커 및 로컬 통합) ---
 
-def reactAppDir = "$projectDir/pocket_plant_web"
-
-task npmBuild(type: Exec) {
-    workingDir "$reactAppDir"
-    // OS 구분: Windows일 경우 npm.cmd, 리눅스/도커일 경우 npm
-    def isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
-    commandLine isWindows ? ["npm.cmd", "run", "build"] : ["npm", "run", "build"]
-}
-
-task copyReactBuildFiles(type: Copy) {
-    dependsOn "npmBuild"
-    from "$reactAppDir/dist" // Vite 빌드 결과 경로
-    into "$projectDir/src/main/resources/static"
-}
-
-// 빌드 시 React 빌드가 무조건 먼저 실행되도록 설정
-processResources {
-    dependsOn "copyReactBuildFiles"
-}
+//def reactAppDir = "$projectDir/pocket_plant_web"
+//
+//task npmBuild(type: Exec) {
+//    workingDir "$reactAppDir"
+//    // OS 구분: Windows일 경우 npm.cmd, 리눅스/도커일 경우 npm
+//    def isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+//    commandLine isWindows ? ["npm.cmd", "run", "build"] : ["npm", "run", "build"]
+//}
+//
+//task copyReactBuildFiles(type: Copy) {
+//    dependsOn "npmBuild"
+//    from "$reactAppDir/dist" // Vite 빌드 결과 경로
+//    into "$projectDir/src/main/resources/static"
+//}
+//
+//// 빌드 시 React 빌드가 무조건 먼저 실행되도록 설정
+//processResources {
+//    dependsOn "copyReactBuildFiles"
+//}
