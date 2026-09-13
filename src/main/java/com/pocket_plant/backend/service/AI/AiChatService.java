@@ -8,6 +8,7 @@ import com.pocket_plant.backend.repository.AI.AiChatMessageRepository;
 import com.pocket_plant.backend.repository.AI.AiChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -35,6 +36,9 @@ public class AiChatService {
 
     @Value("${ai.model}")
     private String modelName;
+
+    @Value("${openai.api-key}")
+    private String openAiApiKey;
 
     public String sendMessage(
             AiChatRoom room,
@@ -165,6 +169,10 @@ public class AiChatService {
 
             return webClientBuilder
                     .baseUrl(aiBaseUrl)
+                    .defaultHeader(
+                            HttpHeaders.AUTHORIZATION,
+                            "Bearer " + openAiApiKey
+                    )
                     .build()
                     .post()
                     .uri("/v1/chat/completions")
