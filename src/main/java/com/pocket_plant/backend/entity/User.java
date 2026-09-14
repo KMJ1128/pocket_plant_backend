@@ -31,6 +31,7 @@ public class User {
 
     private String role; // 권한 (일반유저, 운영진)
 
+    @Builder.Default
     private Boolean isEmailVerified = false; // 이메일 인증 여부
 
 

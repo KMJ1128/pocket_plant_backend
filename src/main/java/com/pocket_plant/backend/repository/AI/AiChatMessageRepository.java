@@ -13,4 +13,7 @@ public interface AiChatMessageRepository
     List<AiChatMessage>
     findByRoomIdOrderByIdAsc(Long roomId);
 
+    List<AiChatMessage>
+    findTop12ByRoomIdOrderByIdDesc(Long roomId);
+
 }

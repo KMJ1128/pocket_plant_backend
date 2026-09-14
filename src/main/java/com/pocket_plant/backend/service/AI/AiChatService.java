@@ -1,11 +1,12 @@
 package com.pocket_plant.backend.service.AI;
 
 
+import com.pocket_plant.backend.dto.AI.Chat.ChatResponse;
 import com.pocket_plant.backend.entity.AI.AiChatMessage;
 import com.pocket_plant.backend.entity.AI.AiChatRoom;
 import com.pocket_plant.backend.entity.Plant;
 import com.pocket_plant.backend.repository.AI.AiChatMessageRepository;
-import com.pocket_plant.backend.repository.AI.AiChatRoomRepository;
+import com.pocket_plant.backend.repository.SensorDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +29,9 @@ public class AiChatService {
 
     private final WebClient.Builder webClientBuilder;
 
-    private final AiChatRoomRepository roomRepository;
-
     private final AiChatMessageRepository messageRepository;
+
+    private final SensorDataRepository sensorDataRepository;
 
     private final ObjectMapper objectMapper;
 
@@ -40,27 +44,41 @@ public class AiChatService {
     @Value("${openai.api-key}")
     private String openAiApiKey;
 
-    public String sendMessage(
+    public ChatResponse sendMessage(
             AiChatRoom room,
             String userMessage
     ) {
+
+        if (userMessage == null || userMessage.isBlank()) {
+            throw new IllegalArgumentException("메시지를 입력해주세요.");
+        }
+
+        String normalizedMessage = userMessage.trim();
+        if (normalizedMessage.length() > 1000) {
+            throw new IllegalArgumentException("메시지는 1000자 이하여야 합니다.");
+        }
 
         messageRepository.save(
                 AiChatMessage.builder()
                         .room(room)
                         .sender(AiChatMessage.SenderType.USER)
-                        .content(userMessage)
+                        .content(normalizedMessage)
                         .build()
         );
 
         Plant plant =
                 room.getPlant();
 
-        String answer =
-                requestAi(
-                        userMessage,
-                        plant
-                );
+        LocalDateTime generatedAt = LocalDateTime.now();
+        LocalDateTime sensorPeriodStart =
+                generatedAt.minusDays(SensorContextFactory.PERIOD_DAYS);
+        ChatResponse.SensorContext sensorContext = SensorContextFactory.create(
+                sensorDataRepository.findTopByPlantIdOrderByRegDateDesc(plant.getId()).orElse(null),
+                sensorDataRepository.summarizeSince(plant.getId(), sensorPeriodStart),
+                generatedAt
+        );
+
+        String answer = requestAi(room, plant, sensorContext);
 
         messageRepository.save(
                 AiChatMessage.builder()
@@ -70,91 +88,76 @@ public class AiChatService {
                         .build()
         );
 
-        return answer;
+        return new ChatResponse(answer, plant.getId(), generatedAt, sensorContext);
     }
 
     public String testChat(
             String message
     ) {
 
-        String prompt =
-                buildDefaultSystemPrompt()
-                        + """
-
-                        사용자 질문:
-                        %s
-                        """.formatted(message);
-
         Map<String, Object> body =
                 Map.of(
                         "model",
                         modelName,
-
                         "messages",
                         List.of(
                                 Map.of(
-                                        "role",
-                                        "user",
-                                        "content",
-                                        prompt
+                                        "role", "system",
+                                        "content", buildDefaultSystemPrompt()
+                                ),
+                                Map.of(
+                                        "role", "user",
+                                        "content", message
                                 )
                         ),
-
                         "temperature",
                         0.5,
-
-                        "max_tokens",
-                        128
+                        "max_completion_tokens",
+                        256,
+                        "response_format",
+                        responseFormat()
                 );
 
         String rawResponse =
                 callAiServer(body);
 
-        return extractAnswer(rawResponse);
+        return extractStructuredAnswer(rawResponse);
     }
 
     private String requestAi(
-            String userMessage,
-            Plant plant
+            AiChatRoom room,
+            Plant plant,
+            ChatResponse.SensorContext sensorContext
     ) {
+        String systemPrompt = buildSystemPrompt(plant, sensorContext);
+        List<Map<String, String>> messages = new ArrayList<>();
+        messages.add(Map.of("role", "system", "content", systemPrompt));
 
-        String systemPrompt =
-                buildSystemPrompt(plant);
-
-        String finalPrompt =
-                systemPrompt
-                        + """
-
-                        사용자 질문:
-                        %s
-                        """.formatted(userMessage);
+        List<AiChatMessage> recentMessages =
+                new ArrayList<>(messageRepository.findTop12ByRoomIdOrderByIdDesc(room.getId()));
+        Collections.reverse(recentMessages);
+        for (AiChatMessage message : recentMessages) {
+            messages.add(Map.of(
+                    "role",
+                    message.getSender() == AiChatMessage.SenderType.USER ? "user" : "assistant",
+                    "content",
+                    message.getContent()
+            ));
+        }
 
         Map<String, Object> body =
                 Map.of(
-                        "model",
-                        modelName,
-
-                        "messages",
-                        List.of(
-                                Map.of(
-                                        "role",
-                                        "user",
-                                        "content",
-                                        finalPrompt
-                                )
-                        ),
-
-                        "temperature",
-                        0.5,
-
-                        "max_tokens",
-                        128
+                        "model", modelName,
+                        "messages", messages,
+                        "temperature", 0.5,
+                        "max_completion_tokens", 256,
+                        "response_format", responseFormat()
                 );
 
         String rawResponse =
                 callAiServer(body);
 
-        return extractAnswer(rawResponse);
+        return extractStructuredAnswer(rawResponse);
     }
 
     private String callAiServer(
@@ -162,11 +165,6 @@ public class AiChatService {
     ) {
 
         try {
-            System.out.println(
-                    "AI 요청 body = "
-                            + objectMapper.writeValueAsString(body)
-            );
-
             return webClientBuilder
                     .baseUrl(aiBaseUrl)
                     .defaultHeader(
@@ -183,36 +181,22 @@ public class AiChatService {
                     .block();
 
         } catch (WebClientResponseException e) {
-            System.out.println(
-                    "AI 서버 응답 오류 status = "
-                            + e.getStatusCode()
-            );
-
-            System.out.println(
-                    "AI 서버 응답 body = "
-                            + e.getResponseBodyAsString()
-            );
+            System.err.println("OpenAI 응답 오류 status = " + e.getStatusCode());
 
             throw new RuntimeException(
-                    "AI 서버 응답 오류: status="
-                            + e.getStatusCode()
-                            + ", body="
-                            + e.getResponseBodyAsString(),
+                    "AI 응답을 생성하지 못했습니다. 잠시 후 다시 시도해주세요.",
                     e
             );
 
         } catch (Exception e) {
-            e.printStackTrace();
-
             throw new RuntimeException(
-                    "AI 서버 호출 실패: "
-                            + e.getMessage(),
+                    "AI 서비스에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.",
                     e
             );
         }
     }
 
-    private String extractAnswer(
+    private String extractStructuredAnswer(
             String rawResponse
     ) {
 
@@ -234,18 +218,21 @@ public class AiChatService {
                             &&
                             !contentNode.isNull()
             ) {
-                return contentNode.asText();
+                JsonNode answerNode = objectMapper.readTree(contentNode.asText()).path("answer");
+                if (!answerNode.isMissingNode() && !answerNode.asText().isBlank()) {
+                    return answerNode.asText();
+                }
             }
-
-            return rawResponse;
-
         } catch (Exception e) {
-            return rawResponse;
+            throw new RuntimeException("AI 응답 형식을 해석하지 못했습니다.", e);
         }
+
+        throw new RuntimeException("AI가 답변을 반환하지 않았습니다.");
     }
 
     private String buildSystemPrompt(
-            Plant plant
+            Plant plant,
+            ChatResponse.SensorContext sensorContext
     ) {
 
         String defaultPrompt =
@@ -278,6 +265,13 @@ public class AiChatService {
                         "차분하고 친절한 성격"
                 );
 
+        String sensorJson;
+        try {
+            sensorJson = objectMapper.writeValueAsString(sensorContext);
+        } catch (Exception e) {
+            throw new RuntimeException("센서 정보를 준비하지 못했습니다.", e);
+        }
+
         return defaultPrompt
                 + """
 
@@ -286,19 +280,29 @@ public class AiChatService {
                 - 식물 종류: %s
                 - 식물 성격: %s
 
+                서버가 DB에서 확정한 센서 정보(JSON):
+                %s
+
                 대화 스타일:
                 - 너는 '%s'라는 식물 캐릭터처럼 말한다.
                 - 식물의 성격은 '%s'이다.
                 - 사용자가 식물과 대화하는 느낌을 받을 수 있게 답한다.
                 - 식물 관리 정보는 정확하고 실용적으로 말한다.
-                - 실제 센서 데이터가 없으면 현재 온도, 습도, 흙 상태를 아는 척하지 않는다.
+                - 센서 질문에는 반드시 위 JSON만 근거로 답한다. 수치나 측정 시각을 만들지 않는다.
+                - available=false이면 측정값이 없다고 솔직하게 말한다.
+                - stale=true이면 오래된 측정값임을 밝히고 현재 상태처럼 단정하지 않는다.
+                - latest는 가장 최근 값이고 recent는 최근 7일의 평균/최저/최고다.
+                - temperatureCelsius는 섭씨, airHumidityPercent는 %%, lightRaw와 soilMoistureRaw는 기기가 보낸 원시값이다.
+                - 토양 수분 원시값은 센서 보정/단위 정보가 없으므로 숫자만으로 물이 필요하다고 확정하지 않는다.
                 - 병충해나 질병은 단정하지 말고 가능성과 확인 방법을 알려준다.
                 - 답변은 한국어로 한다.
                 - 답변은 2~4문장 정도로 짧고 자연스럽게 한다.
+                - 출력은 지정된 JSON 스키마에 맞는 answer 하나만 반환한다.
                 """.formatted(
                 plantName,
                 species,
                 personality,
+                sensorJson,
                 plantName,
                 personality
         );
@@ -317,7 +321,31 @@ public class AiChatService {
                 - 센서 데이터가 주어지지 않았으면 현재 환경 상태를 아는 척하지 않는다.
                 - 병충해나 질병은 단정하지 말고 확인 방법을 알려준다.
                 - 답변은 짧게 한다.
+                - 출력은 지정된 JSON 스키마에 맞는 answer 하나만 반환한다.
                 """;
+    }
+
+    private Map<String, Object> responseFormat() {
+        Map<String, Object> schema = Map.of(
+                "type", "object",
+                "properties", Map.of(
+                        "answer", Map.of(
+                                "type", "string",
+                                "minLength", 1
+                        )
+                ),
+                "required", List.of("answer"),
+                "additionalProperties", false
+        );
+
+        return Map.of(
+                "type", "json_schema",
+                "json_schema", Map.of(
+                        "name", "pocket_plant_chat_answer",
+                        "strict", true,
+                        "schema", schema
+                )
+        );
     }
 
     private String safeText(

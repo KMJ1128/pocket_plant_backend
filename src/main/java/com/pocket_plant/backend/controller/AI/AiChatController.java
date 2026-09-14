@@ -1,6 +1,7 @@
 package com.pocket_plant.backend.controller.AI;
 
 import com.pocket_plant.backend.dto.AI.Chat.CreateRoomRequest;
+import com.pocket_plant.backend.dto.AI.Chat.ChatResponse;
 import com.pocket_plant.backend.dto.AI.Chat.SendMessageRequest;
 import com.pocket_plant.backend.entity.AI.AiChatRoom;
 import com.pocket_plant.backend.entity.Plant;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,7 +68,11 @@ public class AiChatController {
                                 .build()
                 );
 
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok(Map.of(
+                "id", room.getId(),
+                "title", room.getTitle(),
+                "plantId", plant.getId()
+        ));
     }
 
     @PostMapping("/send-message")
@@ -89,7 +96,7 @@ public class AiChatController {
                                 )
                         );
 
-        String answer =
+        ChatResponse answer =
                 aiChatService.sendMessage(
                         room,
                         request.getMessage()

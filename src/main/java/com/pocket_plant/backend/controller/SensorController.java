@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @RestController
@@ -100,7 +101,7 @@ public class SensorController {
         }
     }
 
-    // 3. 처음 센싱한 데이터부터 현재까지 전체 조회
+    // 3. 그래프용 최근 센서 데이터 조회 (무제한 전체 조회 방지)
     @GetMapping("/sensor/history/{macAddress}")
     public ResponseEntity<?> getSensorHistory(
             @PathVariable String macAddress
@@ -113,7 +114,10 @@ public class SensorController {
                     .orElseThrow(() -> new RuntimeException("해당 기기가 등록된 식물이 없습니다."));
 
             List<SensorData> history =
-                    sensorDataRepository.findByPlantIdOrderByRegDateAsc(plant.getId());
+                    sensorDataRepository.findTop500ByPlantIdOrderByRegDateDesc(plant.getId());
+
+            // DB에서는 최신 500개만 가져오고 앱에는 시간순으로 전달한다.
+            Collections.reverse(history);
 
             List<SensorDataDTO> result =
                     history.stream()
