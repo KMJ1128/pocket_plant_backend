@@ -71,7 +71,9 @@ public class MemberService {
         if (user.getPassword() == null || !passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
         }
-        String token = jwtTokenProvider.createToken(user.getId());
+        String authVersion = user.ensureAuthVersion();
+        userRepository.save(user);
+        String token = jwtTokenProvider.createToken(user.getId(), authVersion);
         return new MemberTokenResponse(
                 token,
                 user.getId(),

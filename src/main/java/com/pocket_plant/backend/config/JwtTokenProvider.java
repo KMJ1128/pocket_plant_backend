@@ -34,12 +34,13 @@ public class JwtTokenProvider {
     }
 
     /** 토큰 생성 메서드 - JJWT 0.12.3 신규 API */
-    public String createToken(Long userId) {
+    public String createToken(Long userId, String authVersion) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
                 .subject(userId.toString())           // ✅ setSubject() 대신 subject()
+                .claim("authVersion", authVersion)
                 .issuedAt(now)                         // ✅ setIssuedAt() 대신 issuedAt()
                 .expiration(validity)                  // ✅ setExpiration() 대신 expiration()
                 .signWith(secretKey)                   // ✅ signWith(key, algo) 대신 signWith(key)
@@ -63,6 +64,15 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject());
+    }
+
+    public String getAuthVersion(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("authVersion", String.class);
     }
 
     /** 토큰 유효성 검사 */

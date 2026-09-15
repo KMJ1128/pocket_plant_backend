@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
+import com.pocket_plant.backend.repository.UserRepository;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -27,6 +29,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
+
+            Long userId = jwtTokenProvider.getUserId(token);
+            String tokenAuthVersion = jwtTokenProvider.getAuthVersion(token);
+            boolean matchesCurrentAccount = tokenAuthVersion != null
+                    && userRepository.findById(userId)
+                    .map(user -> tokenAuthVersion.equals(user.getAuthVersion()))
+                    .orElse(false);
+
+            if (!matchesCurrentAccount) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             Authentication auth =
                     jwtTokenProvider.getAuthentication(token);

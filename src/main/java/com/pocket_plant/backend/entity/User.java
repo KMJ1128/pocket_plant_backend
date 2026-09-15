@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,6 +32,10 @@ public class User {
 
 
     private String role; // 권한 (일반유저, 운영진)
+
+    @Column(name = "auth_version", unique = true, length = 36)
+    @Builder.Default
+    private String authVersion = UUID.randomUUID().toString();
 
     @Builder.Default
     private Boolean isEmailVerified = false; // 이메일 인증 여부
@@ -65,11 +71,19 @@ public class User {
         if (this.loginType == null) {
             this.loginType = LoginType.GENERAL;
         }
+        ensureAuthVersion();
     }
     
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = java.time.LocalDateTime.now();
+    }
+
+    public String ensureAuthVersion() {
+        if (authVersion == null || authVersion.isBlank()) {
+            authVersion = UUID.randomUUID().toString();
+        }
+        return authVersion;
     }
 }
 

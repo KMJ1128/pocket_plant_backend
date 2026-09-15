@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.pocket_plant.backend.repository.UserRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain filterChain(
@@ -112,7 +114,8 @@ public class SecurityConfig {
 
                 .addFilterBefore(
                         new JwtAuthenticationFilter(
-                                jwtTokenProvider
+                                jwtTokenProvider,
+                                userRepository
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 );

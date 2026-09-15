@@ -50,14 +50,12 @@ public class KakaoService {
 
         KakaoDTO kakaoInfo = getUserInfoFromKakao(kakaoAccessToken);
 
-        log.info("--- 카카오 로그인 사용자 정보 ---");
-        log.info("카카오 로그인 사용자 정보: ID={}, 닉네임={}", kakaoInfo.getId(), kakaoInfo.getNickname());
-        log.info("-----------------------------");
+        log.debug("카카오 사용자 검증 완료: ID={}", kakaoInfo.getId());
 
         String socialId = "kakao_" + kakaoInfo.getId();
 
         SocialLogin socialLogin = socialLoginRepository
-                .findBySocialId(socialId)
+                .findByProviderAndSocialId("kakao", socialId)
                 .orElse(null);
 
         User user;
@@ -86,7 +84,10 @@ public class KakaoService {
         }
 
         // 3. 우리 서비스 인증 토큰 발행
-        String serviceToken = jwtTokenProvider.createToken(user.getId());
+        String serviceToken = jwtTokenProvider.createToken(
+                user.getId(),
+                user.ensureAuthVersion()
+        );
 
 
         // 4. 결과 반환
