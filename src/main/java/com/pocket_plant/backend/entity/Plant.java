@@ -52,6 +52,10 @@ public class Plant {
     @Column(name = "is_bookmarked", nullable = false)
     private boolean bookmarked;
 
+    // 친밀도
+    @Column(name = "intimacy")
+    private Long intimacy;
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;

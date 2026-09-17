@@ -32,4 +32,6 @@ public interface PlantRepository
     Optional<Plant> findFirstByUserOrderByCreatedAtDesc(
             User user
     );
+
+
 }

@@ -25,6 +25,7 @@ public class PlantDTO {
     private Integer age;
     private String personality;
     private String imageUri;
+    private Long intimacy;
 
     private String macAddress;
     private Boolean bookmarked;
@@ -45,6 +46,7 @@ public class PlantDTO {
                 .imageUri(plant.getImageUrl())
                 .macAddress(plant.getMacAddress())
                 .bookmarked(plant.isBookmarked())
+                .intimacy(plant.getIntimacy())
                 .build();
     }
 
@@ -59,6 +61,7 @@ public class PlantDTO {
                 .imageUrl(emptyToNull(imageUri))
                 .macAddress(emptyToNull(macAddress))
                 .bookmarked(false)
+                .intimacy(this.intimacy != null ? this.intimacy : 0L)
                 .build();
     }
 
