@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -73,9 +74,13 @@ public class PlantDiaryService {
         res.setPlantId(diary.getPlantId());
         res.setDate(diary.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         res.setDay(diary.getDay());
-        res.setMoods(diary.getMoods());
-        res.setMood(!diary.getMoods().isEmpty() ? diary.getMoods().get(0) : "sprout");
-        res.setPhotoUris(diary.getPhotoUrls());
+        // 트랜잭션이 끝난 뒤 JSON 직렬화가 실행되므로 Hibernate의 지연 로딩
+        // 컬렉션을 DTO에 그대로 넘기지 않고 세션 안에서 일반 List로 복사한다.
+        List<String> moods = new ArrayList<>(diary.getMoods());
+        List<String> photoUrls = new ArrayList<>(diary.getPhotoUrls());
+        res.setMoods(moods);
+        res.setMood(!moods.isEmpty() ? moods.get(0) : "sprout");
+        res.setPhotoUris(photoUrls);
         res.setNote(diary.getNote());
 
         if (diary.getSensorSnapshot() != null) {

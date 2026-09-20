@@ -71,6 +71,9 @@ public class SecurityConfig {
                                 "/api/sensor"
                         ).permitAll()
 
+                        // ESP32가 대기 중인 급수 명령을 가져오고 결과를 보고
+                        .requestMatchers("/api/device/**").permitAll()
+
                         // 식물 환경 정보 조회
                         .requestMatchers(
                                 HttpMethod.GET,
