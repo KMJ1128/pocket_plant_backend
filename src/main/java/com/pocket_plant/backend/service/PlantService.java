@@ -105,4 +105,12 @@ public class PlantService {
 
         return value.trim();
     }
+
+    // 친밀도 증가
+    public PlantDTO increaseIntimacy(Long userId, Long plantId){
+        Plant plant = findOwnedPlant(userId, plantId);
+        Long currentIntimacy = plant.getIntimacy() != null ?plant.getIntimacy() : 0L;
+        plant.setIntimacy(currentIntimacy + 1L);
+        return PlantDTO.fromEntity(plant);
+    }
 }

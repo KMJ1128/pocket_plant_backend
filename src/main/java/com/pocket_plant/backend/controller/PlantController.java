@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -119,5 +120,14 @@ public class PlantController {
         }
 
         return (Long) authentication.getPrincipal();
+    }
+
+    // 친밀도 상승
+    @PostMapping("/{plantId}/intimacy")
+    public ResponseEntity<PlantDTO> increaseIntimacy(
+            @AuthenticationPrincipal Long userId, @PathVariable Long plantId
+    ){
+     PlantDTO updatePlant = plantService.increaseIntimacy(userId, plantId);
+     return ResponseEntity.ok(updatePlant);
     }
 }
