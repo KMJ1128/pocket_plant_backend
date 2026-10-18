@@ -1,0 +1,5 @@
+# Install after the existing model requirements. Do not replace PyTorch.
+fastapi==0.143.3
+uvicorn==0.54.0
+python-multipart==0.0.32
+httpx==0.28.1
