@@ -38,3 +38,5 @@ out/
 
 
 application-secret.properties
+__pycache__/
+*.py[cod]
