@@ -91,22 +91,28 @@ def public_result(result, species):
     """Allowlist fields; never return raw prompts, file paths or invented probability."""
     from candidate_explanations import guide_for, render_explanation
     output = {'species': species, 'confidence': None, 'candidates': [],
-              'model_version': 'ornamental-v17-api1', 'score_kind': 'unavailable',
+              'model_version': 'ornamental-v17-api2', 'score_kind': 'unavailable',
               'status': result.get('status', 'uncertain'),
               'disease_symptom': result.get('message', '사진의 원인을 구분하지 못했습니다.'),
               'observation': result.get('description', ''), 'features': '', 'actions': ''}
     differential = result.get('monstera_differential')
     if differential:
         from monstera_differential import render_differential
+        from plant_guidance import MONSTERA_GUIDANCE, with_cause
         rows = differential.get('candidates', [])
         output.update(status='experimental', analysis_text=render_differential(differential))
-        output['candidates'] = [{'name': row['name'], 'comparison_score': None,
-                                'features': row.get('visible', ''), 'actions': row.get('missing', '')}
-                               for row in rows[:3]]
-        if rows:
-            output['disease_symptom'] = rows[0]['name']
-            output['features'] = rows[0].get('visible', '')
-            output['actions'] = rows[0].get('missing', '')
+        for row in rows[:3]:
+            guide = MONSTERA_GUIDANCE.get(row.get('code'))
+            if guide:
+                candidate = with_cause(guide)
+                candidate['features'] = '사진에서 본 모습: ' + row.get('visible', '') + '\n' + candidate['features']
+                candidate['actions'] += '\n추가 확인: ' + row.get('missing', '')
+            else:
+                candidate = {'name': row['name'], 'features': row.get('visible', ''), 'actions': row.get('missing', '')}
+            output['candidates'].append({key: candidate[key] for key in ('name', 'features', 'actions')} | {'comparison_score': None})
+        if output['candidates']:
+            top = output['candidates'][0]
+            output.update(disease_symptom=top['name'], features=top['features'], actions=top['actions'])
         return output
     data = result.get('disease_candidates')
     if not data:
@@ -115,8 +121,10 @@ def public_result(result, species):
     blocked = bool(data.get('normal_result_blocked'))
     output['normal_result_blocked'] = blocked
     if blocked:
-        output.update(status='uncertain', disease_symptom='손상 징후 있음 · 원인 추가 확인 필요',
-                      actions=output['analysis_text'])
+        from plant_guidance import blocked_guidance, with_cause
+        guide = with_cause(blocked_guidance(species))
+        output.update(status='uncertain', disease_symptom=guide['name'],
+                      features=guide['features'], actions=guide['actions'])
         return output
     rows = data.get('candidates', [])
     if data.get('status') != 'experimental_candidates' or not rows:
@@ -163,7 +171,7 @@ async def guard_request(request, call_next):
 
 @app.get('/health')
 def health():
-    return {'status': 'ok', 'busy': engine.lock.locked(), 'model_version': 'ornamental-v17-api1'}
+    return {'status': 'ok', 'busy': engine.lock.locked(), 'model_version': 'ornamental-v17-api2'}
 
 
 @app.get('/supported-species')
