@@ -131,14 +131,12 @@ public class PlantService {
         LocalDate today = LocalDate.now();
         String upperAction = (action != null) ? action.toUpperCase() : "CARE_ATTENTION";
 
-        // 하루 최초 1회만 인정할 행동 목록에 DIARY_WRITE 추가
         boolean isOncePerDay = switch (upperAction) {
-            case "DAILY_LOGIN", "CARE_ATTENTION", "AI_CHAT", "DIARY_WRITE" -> true; // 👈 여기에 DIARY_WRITE 추가
-            case "WATERING", "DISEASE_PREDICT" -> false; // 물주기, 질병진단은 자유 허용 (필요 시 true로 변경 가능)
+            case "DAILY_LOGIN", "CARE_ATTENTION", "AI_CHAT" -> true;
+            case "WATERING", "DIARY_WRITE", "DISEASE_PREDICT" -> false;
             default -> false;
         };
 
-        // 하루 1회 제한 미션인데 오늘 이미 이력이 있다면 점수 증가 없이 종료
         if (isOncePerDay) {
             boolean alreadyEarned = intimacyLogRepository
                     .existsByPlantIdAndActionAndActionDate(plant.getId(), upperAction, today);
@@ -147,12 +145,10 @@ public class PlantService {
             }
         }
 
-        // 점수 가산 및 100점 상한 적용
         Long currentIntimacy = plant.getIntimacy() != null ? plant.getIntimacy() : 0L;
         long scoreToAdd = getScoreByAction(upperAction);
         plant.setIntimacy(Math.min(100L, currentIntimacy + scoreToAdd));
 
-        // 오늘 수행 이력 저장
         if (isOncePerDay) {
             intimacyLogRepository.save(IntimacyLog.builder()
                     .plant(plant)
