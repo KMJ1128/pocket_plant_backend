@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class PlantData {
     @Id
     private Long cntntNo; // 고유 컨텐츠 번호(기본키)
@@ -14,57 +17,16 @@ public class PlantData {
     private String growhTp; // 생육 온도
     private String winterTemperature; // 겨울 최저 온도
     private String humidity; // 습도 정보
-    private String waterCycleSpring; // 봄 물주기
+    private String waterCycleSpring; // 봄 물주기 원본 텍스트
+    private String lightDemand; // 광도 요구도 원본 텍스트
 
-    public PlantData() {}
+    // === 센서 비교용 수치화 데이터 ===
+    // 1. 토양 수분 데이터 (단위: %)
+    private Integer waterThreshold;    // 관수 임계치 (이 값 이하로 떨어지면 물주기 알림)
+    private Integer targetMoistureMin; // 적정 수분 최소값
+    private Integer targetMoistureMax; // 적정 수분 최대값
 
-    public Long getCntntNo() {
-        return cntntNo;
-    }
-
-    public void setCntntNo(Long cntntNo) {
-        this.cntntNo = cntntNo;
-    }
-
-    public String getPlantName() {
-        return plantName;
-    }
-
-    public void setPlantName(String plantName) {
-        this.plantName = plantName;
-    }
-
-    public String getGrowhTp() {
-        return growhTp;
-    }
-
-    public void setGrowhTp(String growhTp) {
-        this.growhTp = growhTp;
-    }
-
-    public String getWinterTemperature() {
-        return winterTemperature;
-    }
-
-    public void setWinterTemperature(String winterTemperature) {
-        this.winterTemperature = winterTemperature;
-    }
-
-    public String getHumidity() {
-        return humidity;
-    }
-
-    public void setHumidity(String humidity) {
-        this.humidity = humidity;
-    }
-
-    public String getWaterCycleSpring() {
-        return waterCycleSpring;
-    }
-
-    public void setWaterCycleSpring(String waterCycleSpring) {
-        this.waterCycleSpring = waterCycleSpring;
-    }
-
-
+    // 2. 광도 데이터 (단위: Lux)
+    private Integer minLux; // 적정 최소 조도 (Lux)
+    private Integer maxLux; // 적정 최대 조도 (Lux)
 }

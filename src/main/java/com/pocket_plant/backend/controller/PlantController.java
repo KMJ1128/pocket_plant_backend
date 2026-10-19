@@ -125,9 +125,13 @@ public class PlantController {
     // 친밀도 상승
     @PostMapping("/{plantId}/intimacy")
     public ResponseEntity<PlantDTO> increaseIntimacy(
-            @AuthenticationPrincipal Long userId, @PathVariable Long plantId
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long plantId,
+            @RequestParam(required = false, defaultValue = "CARE_ATTENTION") String action
     ){
-     PlantDTO updatePlant = plantService.increaseIntimacy(userId, plantId);
-     return ResponseEntity.ok(updatePlant);
+        // action 파라미터를 서비스로 넘겨줍니다.
+        PlantDTO updatePlant = plantService.increaseIntimacy(userId, plantId, action);
+        return ResponseEntity.ok(updatePlant);
     }
+
 }

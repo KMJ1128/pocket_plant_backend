@@ -1,14 +1,17 @@
 package com.pocket_plant.backend.service;
 
 import com.pocket_plant.backend.dto.PlantDTO;
+import com.pocket_plant.backend.entity.IntimacyLog;
 import com.pocket_plant.backend.entity.Plant;
 import com.pocket_plant.backend.entity.User;
+import com.pocket_plant.backend.repository.IntimacyLogRepository;
 import com.pocket_plant.backend.repository.PlantRepository;
 import com.pocket_plant.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -18,6 +21,7 @@ public class PlantService {
 
     private final PlantRepository plantRepository;
     private final UserRepository userRepository;
+    private final IntimacyLogRepository intimacyLogRepository;
 
     @Transactional(readOnly = true)
     public List<PlantDTO> getMyPlants(Long userId) {
@@ -106,11 +110,67 @@ public class PlantService {
         return value.trim();
     }
 
-    // 친밀도 증가
-    public PlantDTO increaseIntimacy(Long userId, Long plantId){
+    // 컨트롤러(유저 요청)용 친밀도 증가
+    public PlantDTO increaseIntimacy(Long userId, Long plantId, String action) {
         Plant plant = findOwnedPlant(userId, plantId);
-        Long currentIntimacy = plant.getIntimacy() != null ?plant.getIntimacy() : 0L;
-        plant.setIntimacy(currentIntimacy + 1L);
+        applyIntimacy(plant, action);
         return PlantDTO.fromEntity(plant);
+    }
+
+    // 내부 서비스(일지 작성 등)용 친밀도 증가
+    public void increaseIntimacyByPlantId(Long plantId, String action) {
+        Plant plant = plantRepository.findById(plantId)
+                .orElse(null);
+        if (plant != null) {
+            applyIntimacy(plant, action);
+        }
+    }
+
+    // 공통 친밀도 계산 및 제한 처리 로직
+    private void applyIntimacy(Plant plant, String action) {
+        LocalDate today = LocalDate.now();
+        String upperAction = (action != null) ? action.toUpperCase() : "CARE_ATTENTION";
+
+        // 하루 최초 1회만 인정할 행동 목록에 DIARY_WRITE 추가
+        boolean isOncePerDay = switch (upperAction) {
+            case "DAILY_LOGIN", "CARE_ATTENTION", "AI_CHAT", "DIARY_WRITE" -> true; // 👈 여기에 DIARY_WRITE 추가
+            case "WATERING", "DISEASE_PREDICT" -> false; // 물주기, 질병진단은 자유 허용 (필요 시 true로 변경 가능)
+            default -> false;
+        };
+
+        // 하루 1회 제한 미션인데 오늘 이미 이력이 있다면 점수 증가 없이 종료
+        if (isOncePerDay) {
+            boolean alreadyEarned = intimacyLogRepository
+                    .existsByPlantIdAndActionAndActionDate(plant.getId(), upperAction, today);
+            if (alreadyEarned) {
+                return;
+            }
+        }
+
+        // 점수 가산 및 100점 상한 적용
+        Long currentIntimacy = plant.getIntimacy() != null ? plant.getIntimacy() : 0L;
+        long scoreToAdd = getScoreByAction(upperAction);
+        plant.setIntimacy(Math.min(100L, currentIntimacy + scoreToAdd));
+
+        // 오늘 수행 이력 저장
+        if (isOncePerDay) {
+            intimacyLogRepository.save(IntimacyLog.builder()
+                    .plant(plant)
+                    .action(upperAction)
+                    .actionDate(today)
+                    .build());
+        }
+    }
+
+    private long getScoreByAction(String action) {
+        return switch (action) {
+            case "DAILY_LOGIN" -> 1L;     // 매일 접속: +1점
+            case "WATERING" -> 3L;        // 물 주기: +3점
+            case "AI_CHAT" -> 2L;         // AI 대화: +2점
+            case "DIARY_WRITE" -> 3L;     // 일지 작성: +3점
+            case "CARE_ATTENTION" -> 1L;  // 식물 관심 주기: +1점
+            case "DISEASE_PREDICT" -> 4L; // 질병 진단하기: +4점
+            default -> 1L;
+        };
     }
 }
