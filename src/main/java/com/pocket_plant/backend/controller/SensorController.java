@@ -65,22 +65,9 @@ public class SensorController {
                     .soil(soil)
                     .build();
 
-            SensorData saved = sensorDataRepository.save(sensorData);
+            sensorDataRepository.save(sensorData);
 
-            Object soilRaw = data.get("moistureRaw");
-            log.info(
-                    "센서 데이터 저장: sensorId={}, plantId={}, plantName={}, mac={}, "
-                            + "temperature={}°C, humidity={}%, light={}, soil={}%, soilRaw={}",
-                    saved.getId(),
-                    plant.getId(),
-                    plant.getName(),
-                    macAddress,
-                    temp,
-                    hum,
-                    light,
-                    soil,
-                    soilRaw == null ? "미전송" : soilRaw
-            );
+            log.debug("센서 데이터 저장 완료: plantId={}", plant.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(
                     Map.of("status", "saved", "plantId", plant.getId())
             );

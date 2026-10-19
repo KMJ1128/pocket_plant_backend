@@ -3,7 +3,6 @@ package com.pocket_plant.backend.controller;
 import com.pocket_plant.backend.dto.DiseasePredictionResponse;
 import com.pocket_plant.backend.service.PlantDiseaseService;
 import com.pocket_plant.backend.service.PlantDiseaseService.DiseaseServerUnavailableException;
-import com.pocket_plant.backend.service.PlantDiseaseService.DiseaseInputException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +25,6 @@ public class PlantDiseaseController {
         try {
             DiseasePredictionResponse result = plantDiseaseService.predictDisease(image, species);
             return ResponseEntity.ok(result);
-        } catch (DiseaseInputException e) {
-            DiseasePredictionResponse error = new DiseasePredictionResponse();
-            error.setStatus("input_error");
-            error.setDiseaseSymptom(e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(error);
         } catch (DiseaseServerUnavailableException e) {
             DiseasePredictionResponse error = new DiseasePredictionResponse();
             error.setStatus("unavailable");

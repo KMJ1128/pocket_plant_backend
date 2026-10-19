@@ -7,9 +7,7 @@ import com.pocket_plant.backend.entity.AI.AiChatRoom;
 import com.pocket_plant.backend.entity.Plant;
 import com.pocket_plant.backend.repository.AI.AiChatMessageRepository;
 import com.pocket_plant.backend.repository.SensorDataRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,7 +18,6 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +25,6 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AiChatService {
 
     private final WebClient.Builder webClientBuilder;
@@ -47,17 +43,6 @@ public class AiChatService {
 
     @Value("${openai.api-key}")
     private String openAiApiKey;
-
-    @PostConstruct
-    void logOpenAiConfiguration() {
-        boolean keyConfigured = openAiApiKey != null && !openAiApiKey.isBlank();
-        log.info(
-                "OpenAI 설정 확인: baseUrl={}, model={}, apiKeyConfigured={}",
-                aiBaseUrl,
-                modelName,
-                keyConfigured
-        );
-    }
 
     public ChatResponse sendMessage(
             AiChatRoom room,
@@ -193,14 +178,10 @@ public class AiChatService {
                     .bodyValue(body)
                     .retrieve()
                     .bodyToMono(String.class)
-                    .block(Duration.ofSeconds(30));
+                    .block();
 
         } catch (WebClientResponseException e) {
-            log.error(
-                    "OpenAI API 오류: status={}, response={}",
-                    e.getStatusCode(),
-                    safeErrorBody(e.getResponseBodyAsString())
-            );
+            System.err.println("OpenAI 응답 오류 status = " + e.getStatusCode());
 
             throw new RuntimeException(
                     "AI 응답을 생성하지 못했습니다. 잠시 후 다시 시도해주세요.",
@@ -208,26 +189,11 @@ public class AiChatService {
             );
 
         } catch (Exception e) {
-            log.error(
-                    "OpenAI 연결 오류: type={}, message={}",
-                    e.getClass().getSimpleName(),
-                    e.getMessage()
-            );
             throw new RuntimeException(
                     "AI 서비스에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.",
                     e
             );
         }
-    }
-
-    private String safeErrorBody(String body) {
-        if (body == null || body.isBlank()) {
-            return "응답 본문 없음";
-        }
-        String singleLine = body.replaceAll("[\\r\\n]+", " ").trim();
-        return singleLine.length() <= 1000
-                ? singleLine
-                : singleLine.substring(0, 1000) + "...";
     }
 
     private String extractStructuredAnswer(

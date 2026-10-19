@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +19,7 @@ import java.util.List;
 public class PlantDiaryService {
 
     private final PlantDiaryRepository diaryRepository;
+    private final PlantService plantService; // PlantService 주입 추가
 
     public List<PlantDiaryDto.Response> getEntriesByPlant(Long plantId) {
         return diaryRepository.findByPlantIdOrderByCreatedAtDesc(plantId)
@@ -52,7 +54,16 @@ public class PlantDiaryService {
                 .sensorSnapshot(snapshot)
                 .build();
 
-        return diaryRepository.save(diary).getId();
+        Long savedId = diaryRepository.save(diary).getId();
+
+        // 일지 작성 성공 시 친밀도 +3점 가산 연동
+        try {
+            plantService.increaseIntimacyByPlantId(req.getPlantId(), "DIARY_WRITE");
+        } catch (Exception e) {
+            System.err.println("일지 작성 친밀도 반영 실패: " + e.getMessage());
+        }
+
+        return savedId;
     }
 
     @Transactional
@@ -71,11 +82,24 @@ public class PlantDiaryService {
         PlantDiaryDto.Response res = new PlantDiaryDto.Response();
         res.setId(diary.getId());
         res.setPlantId(diary.getPlantId());
-        res.setDate(diary.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        res.setDate(diary.getCreatedAt() != null
+                ? diary.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                : null);
         res.setDay(diary.getDay());
-        res.setMoods(diary.getMoods());
-        res.setMood(!diary.getMoods().isEmpty() ? diary.getMoods().get(0) : "sprout");
-        res.setPhotoUris(diary.getPhotoUrls());
+
+        // moods 프록시 컬렉션을 새 ArrayList로 복사하여 세션 분리 에러 방지
+        List<String> moodList = diary.getMoods() != null
+                ? new ArrayList<>(diary.getMoods())
+                : new ArrayList<>();
+        res.setMoods(moodList);
+        res.setMood(!moodList.isEmpty() ? moodList.get(0) : "sprout");
+
+        // photoUrls 프록시 컬렉션을 새 ArrayList로 복사하여 세션 분리 에러 방지
+        List<String> photoList = diary.getPhotoUrls() != null
+                ? new ArrayList<>(diary.getPhotoUrls())
+                : new ArrayList<>();
+        res.setPhotoUris(photoList);
+
         res.setNote(diary.getNote());
 
         if (diary.getSensorSnapshot() != null) {
